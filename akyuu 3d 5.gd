@@ -13,14 +13,14 @@ func _process(delta: float) -> void:
         velocity.y -= gravity * delta
         velocity.y = lerp(velocity.y, 0.0, 1.0 - pow(0.5, delta*2.0))
         
-        print(velocity.y)
+        #print(velocity.y)
     
     var on_floor = is_on_floor()
     
     # Handle Jump.
     if Input.is_action_pressed("ui_accept") and is_on_floor():
         velocity.y = JUMP_VELOCITY
-        play_anim("Jump", 1.0)
+        play_anim("Jump", 1.0, 0.05, true)
 
     # Get the input direction and handle the movement/deceleration.
     # As good practice, you should replace UI actions with custom gameplay actions.
@@ -62,12 +62,17 @@ func _process(delta: float) -> void:
             play_anim("Idle", 1.0)
     else:
         if !animation_player.is_playing():
-            play_anim("JumpLoop", 1.0)
+            play_anim("JumpLoop", 1.0, 0.05)
 
-func play_anim(anim : String, speed : float):
-    const blend_time = 0.2
-    if animation_player.current_animation != anim:
+func play_anim(anim : String, speed : float, blend_time : float = 0.2, force : bool = false):
+    if animation_player.current_animation != anim or force:
+        if animation_player.current_animation == anim and force:
+            print("koasdioawrg")
+            #animation_player.play("Null", blend_time, 1.0)
+            #animation_player.advance(0.0)
+            animation_player.stop(true)
         animation_player.play(anim, blend_time, speed)
+        animation_player.advance(0.0)
     
 
 @onready var animation_player : AnimationPlayer = $AnimationPlayer
