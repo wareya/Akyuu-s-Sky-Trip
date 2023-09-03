@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3 uid="uid://batp2ock308xo"]
 
-[ext_resource type="Script" path="res://akyuu 3d 5.gd" id="1_cd15r"]
+[ext_resource type="Script" path="res://SimplePlayer.gd" id="2_cbpok"]
 [ext_resource type="PackedScene" uid="uid://hghnpfcom623" path="res://akyuu_3d_7.tscn" id="4_0do7r"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hdj71"]
@@ -46,4 +46,4 @@ size = Vector3(12.4221, 2, 12.5694)
 material = SubResource("StandardMaterial3D_ulnmf")
 
 [node name="akyuu 3d 6" parent="." instance=ExtResource("4_0do7r")]
-script = ExtResource("1_cd15r")
+script = ExtResource("2_cbpok")
