@@ -53,6 +53,7 @@ size = Vector3(2.75, 2.5, 0.125)
 
 [node name="KillField" type="Area3D" groups=["KillField"]]
 transform = Transform3D(1.91069e-15, -4.37114e-08, 1, -1, -4.37114e-08, 0, 4.37114e-08, -1, -4.37114e-08, 4.25, 1.5, -0.625)
+collision_mask = 3
 script = ExtResource("1_g4boy")
 
 [node name="Beams" type="MeshInstance3D" parent="."]

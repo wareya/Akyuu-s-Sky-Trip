@@ -1,9 +1,10 @@
 extends Area3D
 
 @export var require_switch = false
+@export var inverted = false
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-    var enabled = !require_switch or is_on
+    var enabled = (!require_switch or is_on) != inverted
     $Beams.visible = enabled
     if !$AudioStreamPlayer3D.playing or !enabled:
         $AudioStreamPlayer3D.playing = enabled

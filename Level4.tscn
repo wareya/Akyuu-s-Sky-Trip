@@ -1,0 +1,230 @@
+[gd_scene load_steps=20 format=3 uid="uid://batp2ock308xo"]
+
+[ext_resource type="PackedScene" uid="uid://hghnpfcom623" path="res://akyuu_3d_7.tscn" id="1_vxuif"]
+[ext_resource type="PackedScene" uid="uid://bhoqc6v5tydy4" path="res://spikes.tscn" id="2_r7fi6"]
+[ext_resource type="Script" path="res://OmniCamera.gd" id="3_28ea3"]
+[ext_resource type="PackedScene" uid="uid://dh6ydaalh60lb" path="res://portal.tscn" id="4_5i0q3"]
+[ext_resource type="PackedScene" uid="uid://cl4o8rk8l4mo7" path="res://sliding_door.tscn" id="5_8owju"]
+[ext_resource type="PackedScene" uid="uid://mg5xs2vvl0uo" path="res://kill_field.tscn" id="5_wotip"]
+[ext_resource type="PackedScene" uid="uid://cmmppn6mojle3" path="res://pressure_switch.tscn" id="7_ia7ko"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hdj71"]
+sky_top_color = Color(0.25098, 0.427451, 0.678431, 1)
+sky_horizon_color = Color(0.866667, 0.894118, 0.933333, 1)
+ground_bottom_color = Color(0.215686, 0.258824, 0.34902, 1)
+ground_horizon_color = Color(0.392157, 0.439216, 0.521569, 1)
+
+[sub_resource type="Sky" id="Sky_fc6i1"]
+sky_material = SubResource("ProceduralSkyMaterial_hdj71")
+
+[sub_resource type="Environment" id="Environment_2qnp8"]
+background_mode = 2
+sky = SubResource("Sky_fc6i1")
+tonemap_mode = 2
+tonemap_exposure = 0.8
+ssr_enabled = true
+sdfgi_enabled = true
+sdfgi_min_cell_size = 0.1
+glow_enabled = true
+glow_intensity = 0.6
+glow_blend_mode = 1
+glow_hdr_threshold = 0.75
+
+[sub_resource type="Gradient" id="Gradient_6xr2g"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.237069, 0.75)
+colors = PackedColorArray(0.164063, 0.164063, 0.164063, 1, 0.567559, 0.697864, 0.927686, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_yhn8r"]
+gradient = SubResource("Gradient_6xr2g")
+fill = 2
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 1)
+metadata/_snap_enabled = true
+metadata/_snap_count = 8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s8t8g"]
+albedo_texture = SubResource("GradientTexture2D_yhn8r")
+uv1_triplanar = true
+
+[sub_resource type="Gradient" id="Gradient_maubq"]
+offsets = PackedFloat32Array(0.946939, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.520366, 0.267027, 0.267027, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_vh05m"]
+gradient = SubResource("Gradient_maubq")
+fill = 2
+fill_to = Vector2(0.25, 0.25)
+metadata/_snap_enabled = true
+metadata/_snap_count = 8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ulnmf"]
+albedo_texture = SubResource("GradientTexture2D_vh05m")
+uv1_triplanar = true
+
+[sub_resource type="Gradient" id="Gradient_ywh6u"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0.694444, 0.788889, 0.916667)
+colors = PackedColorArray(0, 0.0593563, 0.275974, 0, 0.0737511, 0.229567, 0.644569, 0.509091, 0.145098, 0.392157, 1, 0.784314)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_o2e1o"]
+gradient = SubResource("Gradient_ywh6u")
+fill = 2
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 1)
+metadata/_snap_enabled = true
+metadata/_snap_count = 8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spjy3"]
+transparency = 1
+albedo_texture = SubResource("GradientTexture2D_o2e1o")
+uv1_triplanar = true
+uv1_world_triplanar = true
+
+[node name="Level4" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_2qnp8")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.862867, 0.348492, 0.36608, 0, -0.724292, 0.689493, 0.505431, -0.594941, -0.624968, 1.7358, 2.06645, -1.17795)
+light_color = Color(1, 0.847059, 0.690196, 1)
+shadow_enabled = true
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, -1, 0)
+use_collision = true
+collision_layer = 257
+size = Vector3(24, 2, 22)
+material = SubResource("StandardMaterial3D_s8t8g")
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 1, 3)
+use_collision = true
+collision_layer = 257
+size = Vector3(6, 1, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="CSGBox3D2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+use_collision = true
+size = Vector3(6, 1, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="CSGBox3D2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 2)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="CSGBox3D2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 2)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D8" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 2, -5)
+use_collision = true
+size = Vector3(0.25, 4, 3)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D9" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 2, -5)
+use_collision = true
+size = Vector3(0.25, 4, 3)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D6" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.5, -7)
+use_collision = true
+collision_layer = 257
+size = Vector3(6, 5, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D7" type="CSGBox3D" parent="CSGBox3D6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+use_collision = true
+size = Vector3(6, 1, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D8" type="CSGBox3D" parent="CSGBox3D6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.5, 2)
+use_collision = true
+size = Vector3(2, 2, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D9" type="CSGBox3D" parent="CSGBox3D6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 2)
+use_collision = true
+size = Vector3(2, 7, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="akyuu 3d 6" parent="." instance=ExtResource("1_vxuif")]
+transform = Transform3D(-0.861283, 0, 0.508125, 0, 1, 0, -0.508125, 0, -0.861283, -1.15052, -0.02314, 3.98884)
+
+[node name="Node3D" parent="." instance=ExtResource("2_r7fi6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 1)
+
+[node name="OmniCamera" type="Camera3D" parent="."]
+current = true
+fov = 50.0
+script = ExtResource("3_28ea3")
+
+[node name="KillField" parent="." instance=ExtResource("5_wotip")]
+transform = Transform3D(-1, -4.37114e-08, -4.37114e-08, 4.37114e-08, 4.37114e-08, -1, 4.37114e-08, -1, -4.37114e-08, 7, 2.5, 5)
+require_switch = true
+inverted = true
+
+[node name="KillField2" parent="." instance=ExtResource("5_wotip")]
+transform = Transform3D(-4.37114e-08, 1, 8.74228e-08, 1, 4.37114e-08, 8.74228e-08, 8.74228e-08, 8.74228e-08, -1, 1, 1.5, -4.5)
+
+[node name="SlidingDoor" parent="." instance=ExtResource("5_8owju")]
+transform = Transform3D(-1, -8.74228e-08, -8.74228e-08, -8.74228e-08, 1, 8.74228e-08, 8.74228e-08, 8.74227e-08, -1, 0.999999, 1.5, -6)
+
+[node name="Portal" parent="." instance=ExtResource("4_5i0q3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 5)
+target_stage = "res://Level5.tscn"
+
+[node name="CSGBox3D15" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 12, 15.5)
+use_collision = true
+collision_layer = 257
+size = Vector3(38, 30, 9)
+material = SubResource("StandardMaterial3D_spjy3")
+
+[node name="CSGBox3D16" type="CSGBox3D" parent="CSGBox3D15"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -31)
+use_collision = true
+collision_layer = 257
+size = Vector3(38, 30, 9)
+material = SubResource("StandardMaterial3D_spjy3")
+
+[node name="CSGBox3D17" type="CSGBox3D" parent="CSGBox3D15"]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -16, 0, -15.5)
+use_collision = true
+collision_layer = 257
+size = Vector3(34, 30, 9)
+material = SubResource("StandardMaterial3D_spjy3")
+
+[node name="CSGBox3D18" type="CSGBox3D" parent="CSGBox3D15"]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 17, 0, -15.5)
+use_collision = true
+collision_layer = 257
+size = Vector3(37, 30, 9)
+material = SubResource("StandardMaterial3D_spjy3")
+
+[node name="PressureSwitch" parent="." instance=ExtResource("7_ia7ko")]
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 1, 0.125, -2)
+inform_switch = Array[NodePath]([NodePath("../KillField")])
+
+[node name="DummyCamera" type="Camera3D" parent="." groups=["DummyCamera"]]
+transform = Transform3D(0.557093, 0, -0.83045, 0, 1, 0, 0.83045, 0, 0.557093, 0.0555416, 5.5, 5.78524)
+
+[node name="PressureSwitch2" parent="." instance=ExtResource("7_ia7ko")]
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 1, 0.125, -8)
+inform_switch = Array[NodePath]([NodePath("../SlidingDoor")])
+
+[node name="Portal2" parent="." instance=ExtResource("4_5i0q3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.125, 0, 0)
+target_stage = "res://Level4.tscn"

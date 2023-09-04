@@ -55,7 +55,7 @@ interpolation_mode = 1
 offsets = PackedFloat32Array(0.168103, 0.25, 0.905172)
 colors = PackedColorArray(1, 1, 1, 1, 0.520366, 0.267027, 0.267027, 1, 0.303129, 0.0957455, 0.0957455, 1)
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_mdige"]
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_gn87j"]
 gradient = SubResource("Gradient_maubq")
 fill = 2
 fill_from = Vector2(0.5, 0.5)
@@ -64,7 +64,7 @@ metadata/_snap_enabled = true
 metadata/_snap_count = 8
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ulnmf"]
-albedo_texture = SubResource("GradientTexture2D_mdige")
+albedo_texture = SubResource("GradientTexture2D_gn87j")
 uv1_triplanar = true
 uv1_world_triplanar = true
 
@@ -291,7 +291,6 @@ shape = SubResource("SphereShape3D_04ysu")
 
 [node name="KillField" parent="." instance=ExtResource("4_iwt43")]
 transform = Transform3D(1.91069e-15, -4.37114e-08, 1, -1, -4.37114e-08, 0, 4.37114e-08, -1, -4.37114e-08, 4.25, 1.5, -4.55711)
-collision_mask = 3
 require_switch = true
 
 [node name="PressureSwitch" parent="." instance=ExtResource("5_mxuhe")]
