@@ -157,7 +157,7 @@ func _process(delta) -> void:
     #var fixed_pos = goal_pos
     global_position = global_position.lerp(fixed_pos, pow(0.5, delta))
 
-    if collision_sphere:
+    if collision_sphere and is_instance_valid(collision_sphere):
         # If bone is inside the collision sphere, push it out
         var from_sphere : Vector3 = global_position - collision_sphere.global_position
         var surface_distance = from_sphere.length() - collision_sphere.shape.radius

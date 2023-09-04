@@ -3,21 +3,55 @@ class_name SimplePlayer
 
 const mouse_sens = 0.022 * 2.5
 
-const gravity = 20.0
-const jumpvel = 0.42*20.0 + gravity/20.0
+const gravity = 15.0
+const jumpvel = 10.0
 
 const max_speed = 4.0
 const max_speed_air = 4.0
 
 const sprint_speed = 8.0
 
-const accel = 60.0
-const accel_air = 15.0
+const accel = 30.0
+const accel_air = 5.0
 const friction = 60.0
+const air_friction = 1.0
 
 var wish_dir = Vector3()
 
 var original_fov = 90.0
+
+func kill():
+    $CameraHolder/Camera3D.current = false
+    $CameraHolder.queue_free()
+    $AnimationPlayer.stop()
+    var bones = []
+    for child in $Armature/Skeleton3D.get_children():
+        if child is PhysicalBone3D:
+            bones.push_back(child)
+        elif child.has_method("get_bone_forward_local"):
+            child.queue_free()
+    for bone in bones:
+        bone.process_mode = Node.PROCESS_MODE_INHERIT
+        bone.set_collision_layer_value(4, false)
+        bone.set_collision_layer_value(3, true)
+        for bone2 in bones:
+            if bone2 != bone:
+                bone.add_collision_exception_with(bone2)
+            
+    
+    var skele = $Armature/Skeleton3D
+    
+    var armature = $Armature
+    var pos = armature.global_position
+    remove_child(armature)
+    get_parent().add_child(armature)
+    armature.global_position = pos
+    print(armature.global_position)
+    
+    skele.clear_bones_global_pose_override()
+    skele.physical_bones_start_simulation()
+    
+    queue_free()
 
 var animation_script = null
 func _ready():
@@ -31,21 +65,23 @@ func _friction(_velocity : Vector3, delta : float) -> Vector3:
     _velocity *= pow(0.5, delta)
     
     if wish_dir == Vector3():
-        _velocity = _velocity.move_toward(Vector3(), delta * friction)
+        _velocity = _velocity.move_toward(Vector3(), delta)
     else:
         var forwards = wish_dir.normalized()
         forwards = _velocity.project(forwards)
-        var newvel = _velocity.move_toward(forwards, delta * friction)
+        var newvel = _velocity.move_toward(forwards, delta)
         _velocity.x = newvel.x
         _velocity.z = newvel.z
     
-    print((_velocity*Vector3(1,0,1)).length())
+    #print((_velocity*Vector3(1,0,1)).length())
     return _velocity
 
 func handle_friction(delta):
     var oldvel = velocity
     if is_on_floor():
-        velocity = _friction(velocity, delta)
+        velocity = _friction(velocity, delta * friction)
+    else:
+        velocity = _friction(velocity, delta * air_friction)
     if !is_on_floor():
         velocity.y = oldvel.y
 
@@ -57,7 +93,7 @@ func handle_accel(delta):
     var wish_dir_length = wish_dir.length()
     var actual_accel = (accel if is_on_floor() else accel_air) * actual_maxspeed * wish_dir_length
     
-    if Input.is_action_pressed("sprint"):
+    if !Input.is_action_pressed("sprint"):
         actual_maxspeed *= sprint_speed/max_speed
         actual_accel *= sprint_speed/max_speed
         sprint_strength = move_toward(sprint_strength, 1.0, delta*16.0)
@@ -287,13 +323,29 @@ func probe_probable_step_height():
         var lowest = center_offset - down_distance
         return clamp(highest/2.0 + lowest/2.0, 0.0, step_height)
 
+var time = 0.0
+var want_to_jump = false
 func _process(delta: float) -> void:
+    if time > 5.0:
+        #print(scene_file_path)
+        get_parent().add_child(load(scene_file_path).instantiate())
+        kill()
+        return
+    
+    time += delta
+    
     started_process_on_floor = is_on_floor()
     # for controller camera control
     handle_stick_input(delta)
     
     var allow_stair_snapping = started_process_on_floor
-    if Input.is_action_pressed("ui_accept") and started_process_on_floor:
+    if Input.is_action_just_pressed("ui_accept"):
+        want_to_jump = true
+    elif !Input.is_action_pressed("ui_accept"):
+        want_to_jump = false
+    
+    if want_to_jump and started_process_on_floor:
+        want_to_jump = false
         animation_script.play_anim($AnimationPlayer, "Jump", 1.0, 0.05, true)
         allow_stair_snapping = false
         velocity.y = jumpvel
@@ -308,6 +360,9 @@ func _process(delta: float) -> void:
     
     var grav_mod = 1.0
     var drag = 0.98
+    
+    if !Input.is_action_pressed("ui_accept") and !is_on_floor() and velocity.y > 0.0:
+        grav_mod *= 2.0
     
     var start_pos = global_position
     var start_vel = velocity

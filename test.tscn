@@ -1,0 +1,55 @@
+[gd_scene load_steps=9 format=3 uid="uid://dvvhmxe3w78lt"]
+
+[ext_resource type="Script" path="res://test.gd" id="1_nlgml"]
+[ext_resource type="PackedScene" uid="uid://dcv1h0o2uktae" path="res://art/testmesh.tscn" id="2_bo6aw"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_fxue3"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_htd68"]
+sky_material = SubResource("ProceduralSkyMaterial_fxue3")
+
+[sub_resource type="Environment" id="Environment_ov2ic"]
+background_mode = 2
+sky = SubResource("Sky_htd68")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="Gradient" id="Gradient_3bto6"]
+offsets = PackedFloat32Array(0.955102, 1)
+colors = PackedColorArray(0.164063, 0.164063, 0.164063, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_fbtjt"]
+gradient = SubResource("Gradient_3bto6")
+fill = 2
+fill_to = Vector2(0.25, 0.25)
+metadata/_snap_enabled = true
+metadata/_snap_count = 8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sjwhe"]
+albedo_texture = SubResource("GradientTexture2D_fbtjt")
+uv1_triplanar = true
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("1_nlgml")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_ov2ic")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.937227, 0.348719, 0, -0.348719, 0.937227, 0, 1.25449, 2.81312)
+current = true
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, -1, 0)
+use_collision = true
+size = Vector3(12.4221, 2, 12.5694)
+material = SubResource("StandardMaterial3D_sjwhe")
+
+[node name="testmesh" parent="." instance=ExtResource("2_bo6aw")]
+transform = Transform3D(0.422666, 0.906286, 0, -0.900925, 0.420166, 0.108607, 0.0984286, -0.0459043, 0.994085, 0, 0.790979, 0)

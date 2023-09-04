@@ -12,8 +12,9 @@ func handle_animation(parent : CharacterBody3D, delta : float):
     
     var floor_velocity = parent.velocity * Vector3(1,0,1)
     var speed = floor_velocity.length()
-    if speed > 0.5:
-        var new_basis : Basis = holder.global_transform.basis.looking_at(floor_velocity)
+    var speed_intent = parent.wish_dir.length()
+    if speed_intent > 0.0:
+        var new_basis : Basis = holder.global_transform.basis.looking_at(parent.wish_dir)
         var new_y = new_basis.get_euler().y
         #print(new_y)
         holder.global_rotation.y = move_toward_angle(holder.global_rotation.y, new_y, delta * PI * 4.0 )
@@ -21,9 +22,9 @@ func handle_animation(parent : CharacterBody3D, delta : float):
     
     if parent.is_on_floor():
         if speed > 5.0:
-            play_anim(animation_player, "Run", speed*0.2)
-        elif speed > 0.5:
-            play_anim(animation_player, "Walk", speed*0.5)
+            play_anim(animation_player, "Run", speed_intent*2.0)
+        elif speed_intent > 0.0:
+            play_anim(animation_player, "Walk", speed_intent*2.0)
         else:
             play_anim(animation_player, "Idle", 1.0)
     else:

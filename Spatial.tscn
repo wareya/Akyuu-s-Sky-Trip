@@ -1,6 +1,5 @@
-[gd_scene load_steps=9 format=3 uid="uid://batp2ock308xo"]
+[gd_scene load_steps=8 format=3 uid="uid://batp2ock308xo"]
 
-[ext_resource type="Script" path="res://SimplePlayer.gd" id="2_cbpok"]
 [ext_resource type="PackedScene" uid="uid://hghnpfcom623" path="res://akyuu_3d_7.tscn" id="4_0do7r"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hdj71"]
@@ -20,7 +19,7 @@ glow_enabled = true
 offsets = PackedFloat32Array(0.955102, 1)
 colors = PackedColorArray(0.164063, 0.164063, 0.164063, 1, 1, 1, 1, 1)
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_fbtjt"]
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_mdige"]
 gradient = SubResource("Gradient_maubq")
 fill = 2
 fill_to = Vector2(0.25, 0.25)
@@ -28,7 +27,7 @@ metadata/_snap_enabled = true
 metadata/_snap_count = 8
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ulnmf"]
-albedo_texture = SubResource("GradientTexture2D_fbtjt")
+albedo_texture = SubResource("GradientTexture2D_mdige")
 uv1_triplanar = true
 
 [node name="Node3D" type="Node3D"]
@@ -46,4 +45,3 @@ size = Vector3(12.4221, 2, 12.5694)
 material = SubResource("StandardMaterial3D_ulnmf")
 
 [node name="akyuu 3d 6" parent="." instance=ExtResource("4_0do7r")]
-script = ExtResource("2_cbpok")
