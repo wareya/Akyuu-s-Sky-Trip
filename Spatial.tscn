@@ -1,5 +1,7 @@
-[gd_scene load_steps=8 format=3 uid="uid://batp2ock308xo"]
+[gd_scene load_steps=13 format=3 uid="uid://batp2ock308xo"]
 
+[ext_resource type="PackedScene" uid="uid://bhoqc6v5tydy4" path="res://spikes.tscn" id="2_qbwmi"]
+[ext_resource type="Script" path="res://OmniCamera.gd" id="3_8cwtv"]
 [ext_resource type="PackedScene" uid="uid://hghnpfcom623" path="res://akyuu_3d_7.tscn" id="4_0do7r"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hdj71"]
@@ -16,9 +18,24 @@ ssr_enabled = true
 sdfgi_enabled = true
 glow_enabled = true
 
-[sub_resource type="Gradient" id="Gradient_maubq"]
+[sub_resource type="Gradient" id="Gradient_6xr2g"]
 offsets = PackedFloat32Array(0.955102, 1)
 colors = PackedColorArray(0.164063, 0.164063, 0.164063, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_yhn8r"]
+gradient = SubResource("Gradient_6xr2g")
+fill = 2
+fill_to = Vector2(0.25, 0.25)
+metadata/_snap_enabled = true
+metadata/_snap_count = 8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s8t8g"]
+albedo_texture = SubResource("GradientTexture2D_yhn8r")
+uv1_triplanar = true
+
+[sub_resource type="Gradient" id="Gradient_maubq"]
+offsets = PackedFloat32Array(0.946939, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.520366, 0.267027, 0.267027, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_mdige"]
 gradient = SubResource("Gradient_maubq")
@@ -44,31 +61,111 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, -1, 0)
 use_collision = true
 size = Vector3(12.4221, 2, 12.5694)
-material = SubResource("StandardMaterial3D_ulnmf")
+material = SubResource("StandardMaterial3D_s8t8g")
 
 [node name="CSGBox3D2" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.5, 1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.5, 3)
 use_collision = true
 size = Vector3(6, 1, 2)
 material = SubResource("StandardMaterial3D_ulnmf")
 
-[node name="CSGBox3D3" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.5, 5)
+[node name="CSGBox3D3" type="CSGBox3D" parent="CSGBox3D2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
 use_collision = true
 size = Vector3(6, 1, 2)
 material = SubResource("StandardMaterial3D_ulnmf")
 
-[node name="CSGBox3D4" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.5, 3)
+[node name="CSGBox3D4" type="CSGBox3D" parent="CSGBox3D2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 2)
 use_collision = true
 size = Vector3(2, 1, 2)
 material = SubResource("StandardMaterial3D_ulnmf")
 
-[node name="CSGBox3D5" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.5, 3)
+[node name="CSGBox3D5" type="CSGBox3D" parent="CSGBox3D2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 2)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D6" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.5, -7)
+use_collision = true
+size = Vector3(6, 1, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D7" type="CSGBox3D" parent="CSGBox3D6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+use_collision = true
+size = Vector3(6, 1, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D8" type="CSGBox3D" parent="CSGBox3D6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 2)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D9" type="CSGBox3D" parent="CSGBox3D6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 2)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D7" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.5, -7)
+use_collision = true
+size = Vector3(6, 1, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D7" type="CSGBox3D" parent="CSGBox3D7"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+use_collision = true
+size = Vector3(6, 1, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D8" type="CSGBox3D" parent="CSGBox3D7"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 2)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D9" type="CSGBox3D" parent="CSGBox3D7"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 2)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D8" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.5, 3)
+use_collision = true
+size = Vector3(6, 1, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D7" type="CSGBox3D" parent="CSGBox3D8"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+use_collision = true
+size = Vector3(6, 1, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D8" type="CSGBox3D" parent="CSGBox3D8"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 2)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="CSGBox3D9" type="CSGBox3D" parent="CSGBox3D8"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 2)
 use_collision = true
 size = Vector3(2, 1, 2)
 material = SubResource("StandardMaterial3D_ulnmf")
 
 [node name="akyuu 3d 6" parent="." instance=ExtResource("4_0do7r")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.84526, 0.378382, 3.01943)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.84526, 1.47686, 3.01943)
+
+[node name="Node3D" parent="." instance=ExtResource("2_qbwmi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 1)
+
+[node name="OmniCamera" type="Camera3D" parent="."]
+current = true
+fov = 50.0
+script = ExtResource("3_8cwtv")

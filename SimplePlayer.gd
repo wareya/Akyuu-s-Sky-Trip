@@ -11,7 +11,7 @@ const max_speed_air = 4.0
 
 const sprint_speed = 8.0
 
-const accel = 60.0
+const accel = 30.0
 const accel_air = 3.0
 const friction = 60.0
 const air_friction = 1.0
@@ -31,7 +31,15 @@ func kill_eye_gloss():
     $Armature/Skeleton3D/_Face.mesh = $Armature/Skeleton3D/_Face.mesh.duplicate()
     $Armature/Skeleton3D/_Face.mesh.surface_set_material(1, dead_eye_gloss_mat)
 
-func start_simulating_bones():
+static func asdfawgasgd(anim_player : AnimationPlayer, skele : Skeleton3D):
+    while anim_player.is_playing():
+        print("anim still playing.....", Engine.get_process_frames())
+        await Engine.get_main_loop().process_frame
+    print("animation finished!!!!!")
+    anim_player.stop()
+    skele.physical_bones_start_simulation()
+
+func kill():
     var bones = []
     
     var skele = $Armature/Skeleton3D
@@ -50,27 +58,30 @@ func start_simulating_bones():
             if bone2 != bone:
                 bone.add_collision_exception_with(bone2)
     
+    if died_at != null:
+        var closest_bone : PhysicalBone3D = null
+        var closest_dist = 1000.0
+        for bone in bones:
+            var dist = bone.global_position.distance_to(died_at)
+            if dist < closest_dist:
+                closest_bone = bone
+                closest_dist = dist
+        closest_bone.global_position = died_at
+        closest_bone.force_update_transform()
+        if closest_bone:
+            closest_bone.axis_lock_linear_x = true
+            closest_bone.axis_lock_linear_y = true
+            closest_bone.axis_lock_linear_z = true
+    
     skele.clear_bones_global_pose_override()
     
     collision_layer = 0
     
     $CameraHolder/Camera3D.current = false
     $CameraHolder.queue_free()
-
-static func asdfawgasgd(anim_player : AnimationPlayer, skele : Skeleton3D):
-    while anim_player.is_playing():
-        print("anim still playing.....", Engine.get_process_frames())
-        await Engine.get_main_loop().process_frame
-    print("animation finished!!!!!")
-    anim_player.stop()
-    skele.physical_bones_start_simulation()
-
-func kill():
-    #$AnimationPlayer.stop()
     
     var anim_player = $AnimationPlayer as AnimationPlayer
     var armature = $Armature
-    var skele = $Armature/Skeleton3D
     
     
     var pos = armature.global_position
@@ -85,9 +96,28 @@ func kill():
     SimplePlayer.asdfawgasgd(anim_player, skele)
     
     queue_free()
+
+
+func get_camera():
+    return $CameraHolder/Camera3D
+
+func trigger_death():
+    var cam_xform = $CameraHolder.transform
+    var body_xform = $Armature.transform
     
-    #print(armature.global_position)
+    dying = true
+    kill_eye_gloss()
+    $AnimationPlayer.stop()
+    #animation_script.play_anim($AnimationPlayer, "Die", 1.0, 0.05, true)
+    var new = load(scene_file_path).instantiate()
     
+    get_parent().add_child(new)
+    new.global_position = global_position + Vector3.UP*2.0
+    new.get_node("CameraHolder").transform = cam_xform
+    new.get_node("Armature").transform = body_xform
+    
+    kill()
+
 
 var animation_script = null
 func _ready():
@@ -372,23 +402,7 @@ func _process(delta: float) -> void:
         return
     
     if Input.is_action_just_pressed("ui_page_down"):
-        var cam_xform = $CameraHolder.transform
-        var body_xform = $Armature.transform
-        
-        dying = true
-        kill_eye_gloss()
-        $AnimationPlayer.stop()
-        #animation_script.play_anim($AnimationPlayer, "Die", 1.0, 0.05, true)
-        var new = load(scene_file_path).instantiate()
-        
-        get_parent().add_child(new)
-        new.global_position = global_position + Vector3.UP*2.0
-        new.get_node("CameraHolder").transform = cam_xform
-        new.get_node("Armature").transform = body_xform
-        
-        start_simulating_bones()
-        kill()
-        
+        trigger_death()
         return
     
     time += delta
@@ -406,6 +420,7 @@ func _process(delta: float) -> void:
     if want_to_jump and started_process_on_floor:
         want_to_jump = false
         animation_script.play_anim($AnimationPlayer, "Jump", 1.0, 0.05, true)
+        SimplePlayer.emit_sfx("jump", self)
         allow_stair_snapping = false
         velocity.y = jumpvel
         floor_snap_length = 0.0
@@ -427,7 +442,7 @@ func _process(delta: float) -> void:
         grav_mod *= 3.0
     
     var start_pos = global_position
-    var start_vel = velocity
+    start_vel = velocity
     
     actually_handle_movement(delta, drag, grav_mod, allow_stair_snapping)
     
@@ -435,36 +450,111 @@ func _process(delta: float) -> void:
     
     handle_camera_adjustment(start_pos, delta)
     
-    handle_movement_sound(started_process_on_floor, is_on_floor(), start_vel, delta)
+    handle_movement_sound(is_on_floor(), start_vel, delta)
+    
+    check_spikes()
+    
+    check_standing_on_rigidbody()
+
+var start_vel
+
+func check_standing_on_rigidbody():
+    var col = floor_collision if floor_collision else get_last_slide_collision()
+    if !col:
+        return
+    
+    var collider = col.get_collider(0)
+    if not collider is PhysicsBody3D or collider is StaticBody3D or collider is CharacterBody3D:
+        return
+    
+    if collider is PhysicalBone3D:
+        #print(collider)
+        if collider.axis_lock_linear_x:
+            return
+            
+        var force = -1.1
+        if started_process_on_floor:
+            force *= get_process_delta_time()
+        else:
+            force *= -start_vel.y
+        
+        print(force)
+        
+        collider.apply_impulse(Vector3(0, force, 0), col.get_position())
+        #global_position.y -= get_process_delta_time()*0.1
+        pass
+    elif collider is StaticBody3D:
+        #print(collider)
+        pass
+
+
+var died_at = null
+func check_spikes():
+    var col = floor_collision if floor_collision else get_last_slide_collision()
+    if !col:
+        return
+    
+    var is_spikes = col.get_collider(0).get_collision_layer_value(5)
+    
+    if is_spikes:
+        died_at = col.get_position(0)
+        SimplePlayer.emit_sfx("squeak", self)
+        SimplePlayer.emit_sfx("crunch_"+["a", "b", "c"].pick_random(), self)
+        trigger_death()
+    
+    #for surface in 
 
 
 static var prev_which = ""
-static func generate_sound(vox, kind, parent, where : Vector3 = Vector3(), channel = "SFX"):
-    pass
+static func generate_sound(prefix, kind, parent, where : Vector3 = Vector3(), channel = "SFX"):
+    var which = ["_a", "_b", "_c", "_d"].pick_random()
+    while which == prev_which:
+        which = ["_a", "_b", "_c", "_d"].pick_random()
+    prev_which = which
+    EmitterFactory.emit(prefix+kind+which, parent, where, channel, true)
+
+static func emit_sfx(sfx_name, parent, where : Vector3 = Vector3(), channel = "SFX"):
+    EmitterFactory.emit(sfx_name, parent, where, channel, true)
+
 
 var step_progress = 0.0
 const step_rate_modifier = 0.6
 var prev_in_water = false
-func handle_movement_sound(started_process_on_floor : bool, now_on_floor : bool, start_vel : Vector3, delta : float):
-    var speed = start_vel.length()
+var prev_cursor = 0.0
+var suppress_first = 0.0
+func handle_movement_sound(now_on_floor : bool, start_vel : Vector3, delta : float):
+    #var speed = start_vel.length()
         
-    if is_on_floor() and !started_process_on_floor:
+    if now_on_floor and !started_process_on_floor:
         step_progress = 0.5
     
-    if !is_on_floor():
+    if !now_on_floor:
         pass
     else:
-        if speed == 0.0:
-            step_progress = 0.85
+        if !started_process_on_floor and start_vel.y < -5.0:
+            #SimplePlayer.emit_sfx("land", self)
+            generate_step_sound()
+            suppress_first = 0.25
+        suppress_first -= delta
+        if suppress_first < 0.0:
+            suppress_first = 0.0
+        if $AnimationPlayer.is_playing() and $AnimationPlayer.current_animation in ["Walk", "Run"]:
+            var cursor = $AnimationPlayer.current_animation_position / $AnimationPlayer.current_animation_length
+            
+            var offset = 0.15
+            
+            if clamp(offset, prev_cursor, cursor) == offset or clamp(offset+0.5, prev_cursor, cursor) == offset+0.5:
+                if suppress_first:
+                    suppress_first = 0.0
+                else:
+                    generate_step_sound()
+            
+            prev_cursor = cursor
         else:
-            step_progress += delta * min(7.0, speed) * step_rate_modifier
-            if !started_process_on_floor and now_on_floor and start_vel.y < -1.0:
-                step_progress = 0.0
-                #generate_step_sound()
-            else:
-                if step_progress > 1.0:
-                    #generate_step_sound()
-                    step_progress = fmod(step_progress, 1.0)
+            prev_cursor = 0.0
+
+func generate_step_sound():
+    SimplePlayer.generate_sound("rock", "step", self, Vector3(), "SFX")
 
 func actually_handle_movement(delta, drag, grav_mod, allow_stair_snapping):
     if not is_on_floor():
@@ -509,12 +599,15 @@ func _unhandled_input(event: InputEvent) -> void:
 @export var camera_smoothing_meters_per_sec : float = 3.0
 # used to smooth out the camera when climbing stairs
 var camera_offset : Vector3 = Vector3()
+
+const camera_distance = 6.0
+
 func handle_camera_adjustment(start_position, delta):
     #$CameraHolder/Camera3D.fov = rad_to_deg(atan(sprint_strength*0.1 + tan(deg_to_rad(original_fov/2.0))))*2.0
     
     # first/third-person adjustment
     $CameraHolder.position.y = 1.2 if third_person else 1.625
-    $CameraHolder/Camera3D.position.z = 4.0 if third_person else 0.0
+    $CameraHolder/Camera3D.position.z = camera_distance if third_person else 0.0
     
     if do_camera_smoothing:
         # NOT NEEDED: camera smoothing

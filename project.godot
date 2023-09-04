@@ -15,6 +15,10 @@ run/main_scene="res://Spatial.tscn"
 config/features=PackedStringArray("4.1")
 config/icon="res://icon.png"
 
+[autoload]
+
+EmitterFactory="*res://singletons/EmitterFactory.gd"
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/jigglebones/plugin.cfg")
@@ -105,6 +109,14 @@ camera_right={
 "events": [Object(InputEventJoypadMotion,"resource_local_to_scene":false,"resource_name":"","device":-1,"axis":2,"axis_value":1.0,"script":null)
 ]
 }
+
+[layer_names]
+
+3d_physics/layer_1="world"
+3d_physics/layer_2="player"
+3d_physics/layer_3="active ragdoll"
+3d_physics/layer_4="inactive ragdoll"
+3d_physics/layer_5="death"
 
 [physics]
 

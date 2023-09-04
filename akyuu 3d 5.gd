@@ -6,7 +6,9 @@ func move_toward_angle(from : float, to: float, delta : float):
         ans -= TAU
     if delta > abs(ans):
         return to
-    return from + sign(ans) * delta
+    #if abs(ans) < delta/get_process_delta_time()*0.05:
+    #    delta *= 0.25
+    return from + sign(ans) * min(1.0, abs(ans)) * delta
 
 var prev_velocity = Vector3()
 var forwards_tilt = 0.0
