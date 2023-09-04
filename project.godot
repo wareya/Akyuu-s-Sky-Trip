@@ -10,15 +10,22 @@ config_version=5
 
 [application]
 
-config/name="Touhou Jam 11"
-run/main_scene="res://Spatial.tscn"
+config/name="Akyuu's Sky Trip"
+run/main_scene="res://main_screen.tscn"
 config/features=PackedStringArray("4.1")
+boot_splash/bg_color=Color(0.435294, 0.6, 0.894118, 1)
+boot_splash/image="res://art/mainscreen.png"
 config/icon="res://icon.png"
+boot_splash/minimum_display_time=1000
 
 [autoload]
 
 EmitterFactory="*res://singletons/EmitterFactory.gd"
 Manager="*res://singletons/Manager.tscn"
+
+[display]
+
+window/stretch/mode="canvas_items"
 
 [editor_plugins]
 

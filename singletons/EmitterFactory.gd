@@ -15,6 +15,9 @@ var sounds = {
     "respawn" : preload("res://sfx/respawn.wav"),
     "squeak" : preload("res://sfx/squeak.wav"),
     "land" : preload("res://sfx/land.wav"),
+    
+    "doorslide" : preload("res://sfx/doorslide.wav"),
+    "spawnbeep" : preload("res://sfx/spawnbeep.wav"),
 }
 
 func amp_to_db(x : float) -> float:
@@ -36,7 +39,7 @@ class Emitter3D extends AudioStreamPlayer3D:
         bus = channel
         
         attenuation_model = ATTENUATION_INVERSE_DISTANCE
-        print(EmitterFactory.amp_to_db(volume))
+        #print(EmitterFactory.amp_to_db(volume))
         volume_db = 0 + EmitterFactory.amp_to_db(volume)
         max_db = 6
         

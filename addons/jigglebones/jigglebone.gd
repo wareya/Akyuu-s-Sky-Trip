@@ -68,7 +68,7 @@ func _ready() -> void:
     if children.size() > 0:
         bone_id_child = skeleton.get_bone_children(bone_id)[0]
     else:
-        print("no child. using parent as base")
+        #print("no child. using parent as base")
         bone_id = skeleton.get_bone_parent(bone_id)
         bone_id_child = skeleton.get_bone_children(bone_id)[0]
 

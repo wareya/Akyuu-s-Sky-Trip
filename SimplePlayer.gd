@@ -5,7 +5,7 @@ const mouse_sens = 0.022 * 2.5
 
 const gravity = 25.0
 #const jumpvel = 14.0
-const jumpvel = 11.0
+const jumpvel = 12.0
 
 const max_speed = 4.0
 const max_speed_air = 4.0
@@ -79,12 +79,19 @@ func kill():
         var closest_bone : PhysicalBone3D = null
         var closest_dist = 1000.0
         for bone in bones:
+            if bone.name == "Physical Bone Bone":
+                continue
             if bone.name.contains("L_") or bone.name.contains("R_"):
+                continue
+            #if bone.name.contains("L") or bone.name.contains("R"):
+                #continue
+            if bone.name.contains("003"):
                 continue
             var dist = bone.global_position.distance_to(died_at)
             if dist < closest_dist:
                 closest_bone = bone
                 closest_dist = dist
+        died_by.set_collision_layer_value(5, false)
         SimplePlayer.force_bone_position(closest_bone, died_at, died_by)
     
     skele.clear_bones_global_pose_override()
@@ -112,10 +119,27 @@ func kill():
     queue_free()
 
 class SelfDeletesFarFromOrigin extends Node3D:
+    func _ready():
+        $"Armature/Skeleton3D/Physical Bone Bone".add_to_group("Cramped")
+    
     func _process(_delta):
+        var close_limit = 10
+        var close_threshold = 4.0*4.0
+        var bone = $"Armature/Skeleton3D/Physical Bone Bone"
+        var pos = $"Armature/Skeleton3D/Physical Bone Bone".global_position
+        for other in get_tree().get_nodes_in_group("Cramped"):
+            if other.is_queued_for_deletion():
+                continue
+            if pos.distance_squared_to(other.global_position) < close_threshold:
+                close_limit -= 1
+            if close_limit <= 0:
+                bone.queue_free()
+                queue_free()
+                break
+        
         var limit = 10000.0
         limit *= limit
-        if global_position.length_squared() > limit:
+        if pos.length_squared() > limit:
             queue_free()
 
 
@@ -136,6 +160,8 @@ static func make_new(path, where, cam_xform, body_xform):
     new.get_node("Armature").transform = body_xform
 
 func trigger_death():
+    SimplePlayer.emit_sfx("squeak", self)
+    
     var cam_xform = $CameraHolder.transform
     var body_xform = $Armature.transform
     
@@ -145,13 +171,14 @@ func trigger_death():
     kill()
     #animation_script.play_anim($AnimationPlayer, "Die", 1.0, 0.05, true)
     SimplePlayer.make_new(scene_file_path, respawn_position, cam_xform, body_xform)
-    
-    
-
 
 var animation_script = null
 func _ready():
     SimplePlayer.emit_sfx.call_deferred("respawn", self)
+    
+    var dummy_camera = get_tree().get_first_node_in_group("DummyCamera")
+    if dummy_camera:
+        $CameraHolder.global_rotation.y = dummy_camera.global_rotation.y
     
     $Armature/Skeleton3D.animate_physical_bones = true
     do_eye_gloss_thing()
@@ -301,6 +328,7 @@ func move_and_climb_stairs(delta : float, allow_stair_snapping : bool):
     var slide_position = global_position
     var hit_wall = false
     var floor_normal = cos(floor_max_angle)
+    #print(floor_normal)
     var max_slide = get_slide_collision_count()
     var accumulated_position = start_position
     var wall_position = start_position
@@ -429,12 +457,11 @@ var want_to_jump = false
 var dying = false
 var start_vel = Vector3()
 func _process(delta: float) -> void:
-    $FPS.text = str(Engine.get_frames_per_second())
-    
     if dying:
         return
     
     if Input.is_action_just_pressed("ui_page_down"):
+        dying = true
         trigger_death()
         return
     
@@ -472,7 +499,7 @@ func _process(delta: float) -> void:
     var drag = 0.98
     
     if !Input.is_action_pressed("ui_accept") and !is_on_floor() and velocity.y > 0.0:
-        grav_mod *= 3.0
+        grav_mod *= 2.0
     
     var start_pos = global_position
     start_vel = velocity
@@ -480,13 +507,9 @@ func _process(delta: float) -> void:
     actually_handle_movement(delta, drag, grav_mod, allow_stair_snapping)
     
     handle_camera_adjustment(start_pos, delta)
-    
     animation_script.handle_animation(self, delta)
-    
     handle_movement_sound(is_on_floor(), delta)
-    
     check_spikes()
-    
     check_standing_on_rigidbody()
 
 func check_standing_on_rigidbody():
@@ -494,27 +517,44 @@ func check_standing_on_rigidbody():
     if !col:
         return
     
-    var collider = col.get_collider(0)
-    if not collider is PhysicsBody3D or collider is StaticBody3D or collider is CharacterBody3D:
+    if col.get_normal().y < cos(floor_max_angle):
         return
     
+    var collider = col.get_collider(0)
+    #print(collider)
+    if not collider is PhysicsBody3D or collider is StaticBody3D or collider is CharacterBody3D:
+        platform_on_leave = CharacterBody3D.PLATFORM_ON_LEAVE_ADD_VELOCITY
+        return
+    
+    #print(collider)
+    if collider.axis_lock_linear_y:
+        return
+        
+    var pos = col.get_position() - collider.global_position
+    
     if collider is PhysicalBone3D:
-        #print(collider)
-        if collider.axis_lock_linear_x:
-            return
-            
-        var force = 1.1
-        force *= start_vel.y * 0.1
+        var force = Vector3(0, 1.0, 0)
         if started_process_on_floor:
+            force.y *= -gravity
+            force += velocity
             force *= get_process_delta_time()
+        else:
+            force *= start_vel
+        collider.apply_impulse(force, pos)
         
-        #print(force)
-        
-        collider.apply_impulse(Vector3(0, force, 0), col.get_position())
         #global_position.y -= get_process_delta_time()*0.1
         platform_on_leave = CharacterBody3D.PLATFORM_ON_LEAVE_DO_NOTHING
         pass
-    elif collider is StaticBody3D:
+    elif collider is RigidBody3D:
+        var force = Vector3(0, 1.0, 0)
+        if started_process_on_floor:
+            force.y *= -gravity
+            force += velocity
+            collider.apply_force(force, pos)
+        else:
+            force *= start_vel
+            collider.apply_impulse(force, pos)
+            pass
         platform_on_leave = CharacterBody3D.PLATFORM_ON_LEAVE_ADD_VELOCITY
         #print(collider)
         pass
@@ -523,9 +563,9 @@ func check_standing_on_rigidbody():
 var died_at = null
 var died_by = null
 func check_spikes():
-    #var col = floor_collision if floor_collision else get_last_slide_collision()
-    #if !col:
-    #    return
+    var col = floor_collision if floor_collision else get_last_slide_collision()
+    if !col:
+        return
     
     $ShapeCast3D.force_update_transform()
     $ShapeCast3D.force_shapecast_update()
@@ -537,7 +577,8 @@ func check_spikes():
     if is_spikes:
         died_at = $ShapeCast3D.get_collision_point(0)
         died_by = $ShapeCast3D.get_collider(0)
-        SimplePlayer.emit_sfx("squeak", self)
+        var towards_center = died_by.global_position - died_at
+        died_at += towards_center*0.2
         SimplePlayer.emit_sfx("crunch_"+["a", "b", "c"].pick_random(), self)
         trigger_death()
     
@@ -607,6 +648,16 @@ func actually_handle_movement(delta, drag, grav_mod, allow_stair_snapping):
     # don't get flung around by rigidbody penetration
     if velocity.length_squared() > initial_velocity.length_squared():
         velocity = velocity.normalized() * initial_velocity.length()
+        floor_max_angle = 0.8
+    else:
+        var start_speed = initial_velocity.length()
+        var now_speed = velocity.length()
+        var speed_lost = start_speed - now_speed
+        # don't get stuck in crevices
+        if speed_lost < 10.0 and abs(velocity.y) > (abs(velocity.x) + abs(velocity.z))*10.0:
+            floor_max_angle = 1.5
+        else:
+            floor_max_angle = 0.8
     
     #print(global_position.y)
     
@@ -640,14 +691,14 @@ func handle_stick_input(delta):
     camera_dir *= acceleration
     $CameraHolder.rotation_degrees.y -= camera_dir.x * stick_camera_speed * delta
     $CameraHolder.rotation_degrees.x -= camera_dir.y * stick_camera_speed * delta
-    $CameraHolder.rotation_degrees.x = clamp($CameraHolder.rotation_degrees.x, -90.0, 60.0)
+    $CameraHolder.rotation_degrees.x = clamp($CameraHolder.rotation_degrees.x, -89.99, 60.0)
 
 func _input(event: InputEvent) -> void:
     if event is InputEventMouseMotion:
         if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
             $CameraHolder.rotation_degrees.y -= event.relative.x * mouse_sens
             $CameraHolder.rotation_degrees.x -= event.relative.y * mouse_sens
-            $CameraHolder.rotation_degrees.x = clamp($CameraHolder.rotation_degrees.x, -90.0, 90.0)
+            $CameraHolder.rotation_degrees.x = clamp($CameraHolder.rotation_degrees.x, -89.99, 60.0)
 
 func _toggle_mouselock():
     if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
@@ -670,17 +721,30 @@ var camera_offset : Vector3 = Vector3()
 
 const camera_distance = 4.0
 
+func softmin(x, limit) -> float:
+    return limit - log(1.0+exp(limit-x))
+
+var phantom_position = Vector3()
 func handle_camera_adjustment(start_position, delta):
+    var new_phantom = velocity*0.2
+    #var new_phantom = to_local($Armature.to_global(Vector3.FORWARD*0.5))
+    phantom_position = lerp(phantom_position, new_phantom, 1.0 - pow(0.5, delta*1.0))
     #$CameraHolder/Camera3D.fov = rad_to_deg(atan(sprint_strength*0.1 + tan(deg_to_rad(original_fov/2.0))))*2.0
     
     var actual_camera_distance = camera_distance
     if $CameraHolder.rotation_degrees.x < 0.0:
-        actual_camera_distance = min(7.0, lerp(camera_distance+8.0, camera_distance, $CameraHolder.rotation_degrees.x/90.0 + 1.0))
+        var a = 1.0 + $CameraHolder.rotation_degrees.x/90.0
+        #actual_camera_distance = softmin(lerp(camera_distance+8.0, camera_distance, a), 7.0)
+        actual_camera_distance = lerp(camera_distance, lerp(camera_distance+3.0, camera_distance+8.0, a), 1.0-a)
     else:
-        actual_camera_distance = lerp(camera_distance, 1.0, $CameraHolder.rotation_degrees.x/90.0)
+        var a = $CameraHolder.rotation_degrees.x/90.0
+        actual_camera_distance = lerp(camera_distance, lerp(camera_distance-8.0, 1.0, a), a)
+    
+    #$CameraHolder.global_position = phantom_point#$Armature.to_global(Vector3.FORWARD)
+    $CameraHolder.global_position = global_position + phantom_position#global_position + velocity*Vector3(1,0,1)*0.1
     
     # first/third-person adjustment
-    $CameraHolder.position.y = 1.2 if third_person else 1.625
+    $CameraHolder.position.y = 1.5 if third_person else 1.625
     $CameraHolder/Camera3D.position.z = actual_camera_distance if third_person else 0.0
     
     if do_camera_smoothing:
@@ -704,6 +768,7 @@ func handle_camera_adjustment(start_position, delta):
         $CameraHolder/Camera3D.position.y = 0.0
         $CameraHolder/Camera3D.position.x = 0.0
         $CameraHolder/Camera3D.global_position += camera_offset
+    
     
     $CameraHolder/RayCast3D.force_raycast_update()
     if $CameraHolder/RayCast3D.is_colliding():

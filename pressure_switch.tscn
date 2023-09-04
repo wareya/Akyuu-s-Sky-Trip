@@ -1,0 +1,97 @@
+[gd_scene load_steps=11 format=3 uid="uid://cmmppn6mojle3"]
+
+[ext_resource type="Script" path="res://PressureSwitch.gd" id="1_rg84j"]
+
+[sub_resource type="Gradient" id="Gradient_hfbm8"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.5)
+colors = PackedColorArray(0, 0, 0, 1, 0.866588, 0.598524, 0.228125, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_64pgo"]
+gradient = SubResource("Gradient_hfbm8")
+fill_to = Vector2(0.25, 0.25)
+repeat = 1
+metadata/_snap_enabled = true
+metadata/_snap_count = 8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_41v65"]
+albedo_texture = SubResource("GradientTexture2D_64pgo")
+uv1_triplanar = true
+uv1_triplanar_sharpness = 30.9099
+uv1_world_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x75xu"]
+albedo_texture = SubResource("GradientTexture2D_64pgo")
+uv1_triplanar = true
+uv1_triplanar_sharpness = 30.9099
+uv1_world_triplanar = true
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vf7b5"]
+absorbent = true
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_for6p"]
+custom_solver_bias = 0.128
+size = Vector3(1.375, 0.125, 1.375)
+
+[sub_resource type="Gradient" id="Gradient_ys1rb"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0.340517, 0.37069)
+colors = PackedColorArray(0.778335, 0.304416, 0.245843, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ya7cr"]
+gradient = SubResource("Gradient_ys1rb")
+fill = 2
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.7, 0.8)
+repeat = 1
+metadata/_snap_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4vcyf"]
+albedo_texture = SubResource("GradientTexture2D_ya7cr")
+uv1_scale = Vector3(1.49, 1.49, 1.49)
+uv1_triplanar = true
+uv1_triplanar_sharpness = 6.27667
+
+[node name="PressureSwitch" type="CSGCylinder3D"]
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 6, 0.125, -4.61024)
+layers = 3
+radius = 1.414
+height = 0.25
+sides = 4
+cone = true
+material = SubResource("StandardMaterial3D_41v65")
+script = ExtResource("1_rg84j")
+inform_switch = NodePath("../SlidingDoor")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 0, -0.0160986, 0)
+operation = 2
+size = Vector3(1.5, 0.487695, 1.5)
+material = SubResource("StandardMaterial3D_x75xu")
+
+[node name="Plate" type="RigidBody3D" parent="."]
+transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, 0, 0.0935242, 0)
+collision_mask = 7
+axis_lock_linear_x = true
+axis_lock_linear_z = true
+axis_lock_angular_x = true
+axis_lock_angular_y = true
+axis_lock_angular_z = true
+physics_material_override = SubResource("PhysicsMaterial_vf7b5")
+gravity_scale = 0.0
+linear_damp = 4.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Plate"]
+shape = SubResource("BoxShape3D_for6p")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Plate"]
+size = Vector3(1.375, 0.125, 1.375)
+material = SubResource("StandardMaterial3D_4vcyf")
+
+[node name="Light" type="SpotLight3D" parent="."]
+transform = Transform3D(0.707107, 0.707107, 3.09086e-08, 0, -4.37114e-08, 1, 0.707107, -0.707107, -3.09086e-08, 0, 3.07114, 0)
+visible = false
+light_color = Color(1, 0.00784314, 0, 1)
+light_energy = 3.939
+spot_range = 5.599
+spot_attenuation = 0.125

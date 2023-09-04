@@ -28,8 +28,8 @@ func handle_animation(parent : CharacterBody3D, delta : float):
     
     
     var tilt_speed = speed
-    #if !parent.is_on_floor():
-    #    tilt_speed = 0.0
+    if !parent.is_on_floor():
+        tilt_speed *= 0.5
     forwards_tilt = clamp(lerp(forwards_tilt, tilt_speed*0.2, 1.0 - pow(0.5, delta * 40.0)), -1.0, 1.0)
     
     var next_prev_velocity = prev_velocity.lerp(floor_velocity, 1.0 - pow(0.5, delta*8.0))
@@ -46,7 +46,7 @@ func handle_animation(parent : CharacterBody3D, delta : float):
     
     holder.rotation.x = -forwards_tilt*0.1
     sideways_tilt = clamp(lerp(sideways_tilt, sideways_accel*0.015, 1.0 - pow(0.5, delta * 40.0)), -0.4, 0.4)
-    print(sideways_tilt)
+    #print(sideways_tilt)
     holder.rotation.z = -sideways_tilt*0.2
     
     if speed_intent > 0.0:
@@ -57,19 +57,19 @@ func handle_animation(parent : CharacterBody3D, delta : float):
         #holder.global_transform.basis = holder.global_transform.basis.slerp(new_basis, 1.0 - pow(0.5, delta*20.0))
     
     var f = Vector3.FORWARD.rotated(Vector3.UP, holder.global_rotation.y) * -forwards_tilt*0.3
-    holder.position.z = f.z
-    holder.position.x = f.x
+    holder.global_position.z += f.z
+    holder.global_position.x += f.x
     
     var f2 = Vector3.FORWARD.rotated(Vector3.UP, holder.global_rotation.y + PI/2) * sideways_tilt*0.6
-    holder.position.z += f2.z
-    holder.position.x += f2.x
+    holder.global_position.z += f2.z
+    holder.global_position.x += f2.x
     #print(holder.position.z)
     
-    if parent.is_on_floor():
+    if parent.is_on_floor() or parent.velocity.length() < 0.3:
         if speed > 4.0:
             play_anim(animation_player, "Run", speed_intent*2.0)
         elif speed_intent > 0.0:
-            play_anim(animation_player, "Walk", min(2.0, speed_intent*4.0))
+            play_anim(animation_player, "Walk", min(2.0, speed_intent*3.5))
         else:
             play_anim(animation_player, "Idle", 1.0)
     else:
