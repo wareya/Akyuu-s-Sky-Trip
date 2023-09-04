@@ -1,13 +1,12 @@
-[gd_scene load_steps=30 format=3 uid="uid://d331oq1b0hrjv"]
+[gd_scene load_steps=24 format=3 uid="uid://w7tfvj72lvwm"]
 
-[ext_resource type="PackedScene" uid="uid://hghnpfcom623" path="res://akyuu_3d_7.tscn" id="1_uavbv"]
-[ext_resource type="Script" path="res://Level1.gd" id="1_vhlfn"]
-[ext_resource type="PackedScene" uid="uid://bhoqc6v5tydy4" path="res://spikes.tscn" id="2_rimph"]
-[ext_resource type="Script" path="res://OmniCamera.gd" id="3_x18ec"]
-[ext_resource type="PackedScene" uid="uid://mg5xs2vvl0uo" path="res://kill_field.tscn" id="4_iwt43"]
-[ext_resource type="PackedScene" uid="uid://cmmppn6mojle3" path="res://pressure_switch.tscn" id="5_mxuhe"]
-[ext_resource type="PackedScene" uid="uid://cl4o8rk8l4mo7" path="res://sliding_door.tscn" id="6_67mbw"]
-[ext_resource type="Script" path="res://Portal.gd" id="7_yrq1m"]
+[ext_resource type="PackedScene" uid="uid://hghnpfcom623" path="res://akyuu_3d_7.tscn" id="2_6ur64"]
+[ext_resource type="PackedScene" uid="uid://cl4o8rk8l4mo7" path="res://sliding_door.tscn" id="2_r87ty"]
+[ext_resource type="PackedScene" uid="uid://bhoqc6v5tydy4" path="res://spikes.tscn" id="3_fc1lp"]
+[ext_resource type="PackedScene" uid="uid://mg5xs2vvl0uo" path="res://kill_field.tscn" id="3_hj6ds"]
+[ext_resource type="Script" path="res://OmniCamera.gd" id="4_6ss1m"]
+[ext_resource type="PackedScene" uid="uid://cmmppn6mojle3" path="res://pressure_switch.tscn" id="4_cirxm"]
+[ext_resource type="PackedScene" uid="uid://dh6ydaalh60lb" path="res://portal.tscn" id="5_hue5j"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hdj71"]
 sky_top_color = Color(0.25098, 0.427451, 0.678431, 1)
@@ -107,39 +106,7 @@ uv1_world_triplanar = true
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_04ysu"]
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_lwpqh"]
-height = 1.0
-radius = 1.0
-
-[sub_resource type="Gradient" id="Gradient_jbulo"]
-interpolation_mode = 2
-offsets = PackedFloat32Array(0, 0.5, 1)
-colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_yn1ho"]
-gradient = SubResource("Gradient_jbulo")
-fill_to = Vector2(0.0598291, 0.239316)
-repeat = 2
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hgd63"]
-render_priority = 2
-transparency = 1
-blend_mode = 1
-shading_mode = 0
-albedo_color = Color(1, 0.984314, 0, 0.368627)
-albedo_texture = SubResource("GradientTexture2D_yn1ho")
-uv1_triplanar = true
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k5dkw"]
-transparency = 1
-blend_mode = 1
-shading_mode = 0
-albedo_color = Color(0, 0.419608, 1, 0.717647)
-albedo_texture = SubResource("GradientTexture2D_yn1ho")
-uv1_triplanar = true
-
 [node name="Node3D" type="Node3D"]
-script = ExtResource("1_vhlfn")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_2qnp8")
@@ -150,70 +117,55 @@ light_color = Color(1, 0.847059, 0.690196, 1)
 shadow_enabled = true
 
 [node name="CSGBox3D" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, -1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, -1, 1)
 use_collision = true
 collision_layer = 257
-size = Vector3(12, 2, 14)
+size = Vector3(12, 2, 16)
 material = SubResource("StandardMaterial3D_s8t8g")
 
-[node name="CSGBox3D6" type="CSGBox3D" parent="."]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1, 5.5, -3)
-use_collision = true
-collision_layer = 257
-size = Vector3(6, 5, 2)
-material = SubResource("StandardMaterial3D_ulnmf")
-
-[node name="CSGBox3D7" type="CSGBox3D" parent="CSGBox3D6"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
-use_collision = true
-size = Vector3(6, 1, 2)
-material = SubResource("StandardMaterial3D_ulnmf")
-
-[node name="CSGBox3D8" type="CSGBox3D" parent="CSGBox3D6"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.5, 2)
-use_collision = true
-size = Vector3(2, 2, 2)
-material = SubResource("StandardMaterial3D_ulnmf")
-
-[node name="CSGBox3D9" type="CSGBox3D" parent="CSGBox3D6"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 2)
-use_collision = true
-size = Vector3(2, 7, 2)
-material = SubResource("StandardMaterial3D_ulnmf")
-
 [node name="CSGBox3D9" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1, 4.25)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 4.5, 3)
 use_collision = true
 collision_layer = 257
-size = Vector3(2, 2, 5.5)
+size = Vector3(3.25, 2.5, 4.5)
+material = SubResource("StandardMaterial3D_ulnmf")
+
+[node name="SlidingDoor" parent="." instance=ExtResource("2_r87ty")]
+transform = Transform3D(-4.37114e-08, -1, -4.37114e-08, 0, -4.37114e-08, 1, -1, 4.37114e-08, 1.91069e-15, 6.625, 3.125, 3)
+
+[node name="CSGBox3D12" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 1.5, 3.0297)
+use_collision = true
+collision_layer = 257
+size = Vector3(3, 3, 4.25)
 material = SubResource("StandardMaterial3D_ulnmf")
 
 [node name="CSGBox3D11" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, 8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 6.5, 3.5)
 use_collision = true
 collision_layer = 257
-size = Vector3(6, 2, 2)
+size = Vector3(2, 1, 7)
 material = SubResource("StandardMaterial3D_ulnmf")
 
 [node name="CSGBox3D13" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 2, -4.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 1.5, -4.5)
 use_collision = true
 collision_layer = 257
-size = Vector3(2, 4, 5)
+size = Vector3(3, 1, 5)
 material = SubResource("StandardMaterial3D_ulnmf")
 
-[node name="CSGBox3D12" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.5, 5)
+[node name="CSGBox3D15" type="CSGBox3D" parent="."]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -3.5, 3, -3.5)
 use_collision = true
 collision_layer = 257
-size = Vector3(2, 1, 8)
+size = Vector3(6, 1, 7)
 material = SubResource("StandardMaterial3D_ulnmf")
 
 [node name="CSGBox3D10" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 4.5, 4.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 4.5, -4.5)
 use_collision = true
 collision_layer = 257
-size = Vector3(6, 9, 9)
+size = Vector3(3, 9, 5)
 material = SubResource("StandardMaterial3D_r0oq2")
 
 [node name="CSGBox3D14" type="CSGBox3D" parent="."]
@@ -229,15 +181,8 @@ collision_layer = 257
 size = Vector3(20, 30, 9)
 material = SubResource("StandardMaterial3D_ex2pk")
 
-[node name="CSGBox3D16" type="CSGBox3D" parent="CSGBox3D14"]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 19.5, 0, -2.75)
-use_collision = true
-collision_layer = 257
-size = Vector3(13.25, 30, 9)
-material = SubResource("StandardMaterial3D_ex2pk")
-
 [node name="CSGBox3D17" type="CSGBox3D" parent="CSGBox3D14"]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 21.5, 0, 1.5783)
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 19.5, 0, 1.5783)
 use_collision = true
 collision_layer = 257
 size = Vector3(29.2419, 30, 9)
@@ -250,19 +195,36 @@ collision_layer = 257
 size = Vector3(28.5692, 30, 9)
 material = SubResource("StandardMaterial3D_ex2pk")
 
-[node name="akyuu 3d 6" parent="." instance=ExtResource("1_uavbv")]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 2.84526, -0.02314, -0.98057)
+[node name="akyuu 3d 6" parent="." instance=ExtResource("2_6ur64")]
+transform = Transform3D(0.463002, 0, 0.886357, 0, 1, 0, -0.886357, 0, 0.463002, -0.155, 0, -1.41)
 
-[node name="Node3D" parent="." instance=ExtResource("2_rimph")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 2, 1)
+[node name="KillField" parent="." instance=ExtResource("3_hj6ds")]
+transform = Transform3D(-1, 8.74228e-08, -3.82137e-15, 0, -4.37114e-08, -1, -8.74228e-08, -1, 4.37114e-08, -1.52217, 5.5, -3.49779)
+collision_mask = 3
+
+[node name="PressureSwitch" parent="." instance=ExtResource("4_cirxm")]
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, -1.64481, 0.125, -3.58264)
+inform_switch = Array[NodePath]([NodePath("../KillField"), NodePath("../SlidingDoor")])
+
+[node name="Node3D" parent="." instance=ExtResource("3_fc1lp")]
+transform = Transform3D(1, 1.06581e-14, 0, -1.06581e-14, 1, 0, 0, 0, 1, 3.25, 0, 4.125)
+
+[node name="Node3D2" parent="." instance=ExtResource("3_fc1lp")]
+transform = Transform3D(-1, -8.74228e-08, 0, -8.74228e-08, 1, 8.74228e-08, -7.64274e-15, 8.74228e-08, -1, 1, 6.375, 3)
+
+[node name="Node3D4" parent="." instance=ExtResource("3_fc1lp")]
+transform = Transform3D(-1, -8.74228e-08, 0, -8.74228e-08, 1, 8.74228e-08, -7.64274e-15, 8.74228e-08, -1, 1, 6.375, 1)
+
+[node name="Node3D3" parent="." instance=ExtResource("3_fc1lp")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 8, 8, -1.375)
 
 [node name="OmniCamera" type="Camera3D" parent="."]
 current = true
 fov = 50.0
-script = ExtResource("3_x18ec")
+script = ExtResource("4_6ss1m")
 
 [node name="DummyCamera" type="Camera3D" parent="." groups=["DummyCamera"]]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 10.5, 5.5, 0)
+transform = Transform3D(-0.193293, 0, -0.981141, 0, 1, 0, 0.981141, 0, -0.193293, -1.44622, 5.5, 0.110556)
 
 [node name="CSGBox3D2" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.455382, -1)
@@ -289,59 +251,9 @@ sleeping = true
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D2"]
 shape = SubResource("SphereShape3D_04ysu")
 
-[node name="KillField" parent="." instance=ExtResource("4_iwt43")]
-transform = Transform3D(1.91069e-15, -4.37114e-08, 1, -1, -4.37114e-08, 0, 4.37114e-08, -1, -4.37114e-08, 4.25, 1.5, -4.55711)
-collision_mask = 3
-require_switch = true
+[node name="Portal" parent="." instance=ExtResource("5_hue5j")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.375, 9, -4.625)
 
-[node name="PressureSwitch" parent="." instance=ExtResource("5_mxuhe")]
-transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 5, 0.125, -4.48524)
-inform_switch = Array[NodePath]([NodePath("../KillField"), NodePath("../SlidingDoor")])
-
-[node name="SlidingDoor" parent="." instance=ExtResource("6_67mbw")]
-
-[node name="Portal" type="Area3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 9, 3.5)
-collision_mask = 3
-script = ExtResource("7_yrq1m")
-target_stage = "res://Level2.tscn"
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Portal"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-shape = SubResource("CylinderShape3D_lwpqh")
-
-[node name="CSGCylinder3D" type="CSGCylinder3D" parent="Portal"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-radius = 1.0
-height = 1.0
-sides = 12
-smooth_faces = false
-material = SubResource("StandardMaterial3D_hgd63")
-
-[node name="CSGCylinder3D2" type="CSGCylinder3D" parent="Portal/CSGCylinder3D"]
-transform = Transform3D(1, 0, 0, 0, -1, 8.74228e-08, 0, -8.74228e-08, -1, 0, -0.239951, 0)
-operation = 2
-radius = 1.735
-height = 9.644
-sides = 12
-cone = true
-smooth_faces = false
-material = SubResource("StandardMaterial3D_hgd63")
-
-[node name="CSGCylinder3D2" type="CSGCylinder3D" parent="Portal"]
-transform = Transform3D(0.503152, 0, 0.621963, 0, 1, 0, -0.621963, 0, 0.503152, 0, 0.5, 0)
-radius = 1.0
-height = 1.0
-sides = 12
-smooth_faces = false
-material = SubResource("StandardMaterial3D_k5dkw")
-
-[node name="CSGCylinder3D2" type="CSGCylinder3D" parent="Portal/CSGCylinder3D2"]
-transform = Transform3D(1, 0, 0, 0, -1, 8.74228e-08, 0, -8.74228e-08, -1, 0, -0.239951, 0)
-operation = 2
-radius = 1.735
-height = 9.644
-sides = 12
-cone = true
-smooth_faces = false
-material = SubResource("StandardMaterial3D_hgd63")
+[node name="Portal2" parent="." instance=ExtResource("5_hue5j")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.125, 0, 7)
+target_stage = "res://Level3.tscn"

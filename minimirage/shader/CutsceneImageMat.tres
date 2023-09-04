@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://bmp7uh34kw737"]
+
+[ext_resource type="Shader" path="res://minimirage/shader/CutsceneImageShader.gdshader" id="1_sb76f"]
+
+[resource]
+shader = ExtResource("1_sb76f")
+shader_parameter/is_background = false
+shader_parameter/position = Vector2(0, 0)
+shader_parameter/scale = Vector2(1, 1)
+shader_parameter/rotation = 0.0
+shader_parameter/screen_size = Vector2(1280, 720)

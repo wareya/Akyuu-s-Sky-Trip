@@ -81,11 +81,11 @@ func kill():
         for bone in bones:
             if bone.name == "Physical Bone Bone":
                 continue
-            if bone.name.contains("L_") or bone.name.contains("R_"):
+            #if bone.name.contains("L_") or bone.name.contains("R_"):
+            #    continue
+            if bone.name.contains("L") or bone.name.contains("R"):
                 continue
-            #if bone.name.contains("L") or bone.name.contains("R"):
-                #continue
-            if bone.name.contains("003"):
+            if bone.name.contains("003") or bone.name.contains("004"):
                 continue
             var dist = bone.global_position.distance_to(died_at)
             if dist < closest_dist:
@@ -174,6 +174,9 @@ func trigger_death():
 
 var animation_script = null
 func _ready():
+    $Options/InvertX.button_pressed = camera_invert_x
+    $Options/InvertY.button_pressed = camera_invert_y
+    
     SimplePlayer.emit_sfx.call_deferred("respawn", self)
     
     var dummy_camera = get_tree().get_first_node_in_group("DummyCamera")
@@ -457,13 +460,15 @@ var want_to_jump = false
 var dying = false
 var start_vel = Vector3()
 func _process(delta: float) -> void:
-    if dying:
+    check_options()
+    
+    if dying or CutsceneInstance.cutscene_is_running():
         return
     
-    if Input.is_action_just_pressed("ui_page_down"):
-        dying = true
-        trigger_death()
-        return
+    #if Input.is_action_just_pressed("ui_page_down"):
+    #    dying = true
+    #    trigger_death()
+    #    return
     
     time += delta
     
@@ -686,6 +691,10 @@ func custom_get_vector(a, b, c, d, deadzone):
 func handle_stick_input(delta):
     #var camera_dir = Input.get_vector("camera_left", "camera_right", "camera_up", "camera_down", 0.0)
     var camera_dir = custom_get_vector("camera_left", "camera_right", "camera_up", "camera_down", 0.15)
+    if camera_invert_x:
+        camera_dir.x *= -1.0
+    if camera_invert_y:
+        camera_dir.y *= -1.0
     var tilt = camera_dir.length()
     var acceleration = lerp(0.25, 1.0, tilt)
     camera_dir *= acceleration
@@ -710,9 +719,9 @@ func _unhandled_input(event: InputEvent) -> void:
     if event is InputEventMouseButton:
         if event.pressed:
             _toggle_mouselock()
-    if event is InputEventKey:
-        if event.pressed and event.keycode in [KEY_ESCAPE, KEY_Z]:
-            _toggle_mouselock()
+    #if event is InputEventKey:
+        #if event.pressed and event.keycode in [KEY_Z]:
+            #_toggle_mouselock()
 
 @export var third_person : bool = true
 @export var camera_smoothing_meters_per_sec : float = 3.0
@@ -781,4 +790,13 @@ func handle_camera_adjustment(start_position, delta):
         if dist < actual_camera_distance:
             $CameraHolder/Camera3D.position.z = dist
             $CameraHolder/Camera3D.global_position += $CameraHolder/RayCast3D.get_collision_normal()*0.1
-            
+
+static var camera_invert_x = false
+static var camera_invert_y = false
+
+func check_options():
+    if Input.is_action_just_pressed("menu"):
+        $Options.visible = !$Options.visible
+        $Options/InvertX.grab_focus()
+    camera_invert_x = $Options/InvertX.button_pressed
+    camera_invert_y = $Options/InvertY.button_pressed

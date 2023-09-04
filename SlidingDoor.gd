@@ -8,11 +8,15 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 @onready var start_position = position
+@export var inverted = false
+
 func _process(delta: float) -> void:
-    if is_open:
-        position.y = move_toward(position.y, start_position.y + 2.9, delta*12.0)
+    var up = transform.basis * Vector3.UP
+    print(up)
+    if is_open != inverted:
+        position = position.move_toward(start_position + 2.9*up, delta*12.0)
     else:
-        position.y = move_toward(position.y, start_position.y + 0.0, delta*12.0)
+        position = position.move_toward(start_position + 0.0*up, delta*12.0)
 
 var is_open = false
 func inform_switch(new_state : bool):
