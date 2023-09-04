@@ -3,16 +3,16 @@ class_name SimplePlayer
 
 const mouse_sens = 0.022 * 2.5
 
-const gravity = 15.0
-const jumpvel = 10.0
+const gravity = 25.0
+const jumpvel = 14.0
 
 const max_speed = 4.0
 const max_speed_air = 4.0
 
 const sprint_speed = 8.0
 
-const accel = 30.0
-const accel_air = 5.0
+const accel = 60.0
+const accel_air = 3.0
 const friction = 60.0
 const air_friction = 1.0
 
@@ -20,16 +20,28 @@ var wish_dir = Vector3()
 
 var original_fov = 90.0
 
-func kill():
-    $CameraHolder/Camera3D.current = false
-    $CameraHolder.queue_free()
-    $AnimationPlayer.stop()
+static var dead_eye_gloss_mat : StandardMaterial3D = null
+func do_eye_gloss_thing():
+    if dead_eye_gloss_mat == null:
+        dead_eye_gloss_mat = ($Armature/Skeleton3D/_Face.mesh as ArrayMesh).surface_get_material(1).duplicate()
+        dead_eye_gloss_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+        dead_eye_gloss_mat.albedo_color.a = 0.0
+
+func kill_eye_gloss():
+    $Armature/Skeleton3D/_Face.mesh = $Armature/Skeleton3D/_Face.mesh.duplicate()
+    $Armature/Skeleton3D/_Face.mesh.surface_set_material(1, dead_eye_gloss_mat)
+
+func start_simulating_bones():
     var bones = []
-    for child in $Armature/Skeleton3D.get_children():
+    
+    var skele = $Armature/Skeleton3D
+
+    for child in skele.get_children():
         if child is PhysicalBone3D:
             bones.push_back(child)
         elif child.has_method("get_bone_forward_local"):
             child.queue_free()
+    
     for bone in bones:
         bone.process_mode = Node.PROCESS_MODE_INHERIT
         bone.set_collision_layer_value(4, false)
@@ -37,24 +49,50 @@ func kill():
         for bone2 in bones:
             if bone2 != bone:
                 bone.add_collision_exception_with(bone2)
-            
-    
-    var skele = $Armature/Skeleton3D
-    
-    var armature = $Armature
-    var pos = armature.global_position
-    remove_child(armature)
-    get_parent().add_child(armature)
-    armature.global_position = pos
-    print(armature.global_position)
     
     skele.clear_bones_global_pose_override()
+    
+    collision_layer = 0
+    
+    $CameraHolder/Camera3D.current = false
+    $CameraHolder.queue_free()
+
+static func asdfawgasgd(anim_player : AnimationPlayer, skele : Skeleton3D):
+    while anim_player.is_playing():
+        print("anim still playing.....", Engine.get_process_frames())
+        await Engine.get_main_loop().process_frame
+    print("animation finished!!!!!")
+    anim_player.stop()
     skele.physical_bones_start_simulation()
+
+func kill():
+    #$AnimationPlayer.stop()
+    
+    var anim_player = $AnimationPlayer as AnimationPlayer
+    var armature = $Armature
+    var skele = $Armature/Skeleton3D
+    
+    
+    var pos = armature.global_position
+    remove_child(armature)
+    remove_child(anim_player)
+    var dummy = Node.new()
+    dummy.add_child(armature)
+    dummy.add_child(anim_player)
+    get_parent().add_child(dummy)
+    armature.global_position = pos
+    
+    SimplePlayer.asdfawgasgd(anim_player, skele)
     
     queue_free()
+    
+    #print(armature.global_position)
+    
 
 var animation_script = null
 func _ready():
+    $Armature/Skeleton3D.animate_physical_bones = true
+    do_eye_gloss_thing()
     animation_script = preload("res://akyuu 3d 5.gd").new()
     animation_script.fix_animations($AnimationPlayer)
     add_child(animation_script)
@@ -82,15 +120,16 @@ func handle_friction(delta):
         velocity = _friction(velocity, delta * friction)
     else:
         velocity = _friction(velocity, delta * air_friction)
-    if !is_on_floor():
-        velocity.y = oldvel.y
+    #if !is_on_floor():
+    #    velocity.y = oldvel.y
+    velocity.y = oldvel.y
 
 
 var sprint_strength = 0.0
 
 func handle_accel(delta):
-    var actual_maxspeed = max_speed if is_on_floor() else max_speed_air
     var wish_dir_length = wish_dir.length()
+    var actual_maxspeed = max_speed if is_on_floor() else max_speed_air * wish_dir_length
     var actual_accel = (accel if is_on_floor() else accel_air) * actual_maxspeed * wish_dir_length
     
     if !Input.is_action_pressed("sprint"):
@@ -325,11 +364,31 @@ func probe_probable_step_height():
 
 var time = 0.0
 var want_to_jump = false
+var dying = false
 func _process(delta: float) -> void:
-    if time > 5.0:
-        #print(scene_file_path)
-        get_parent().add_child(load(scene_file_path).instantiate())
+    $FPS.text = str(Engine.get_frames_per_second())
+    
+    if dying:
+        return
+    
+    if Input.is_action_just_pressed("ui_page_down"):
+        var cam_xform = $CameraHolder.transform
+        var body_xform = $Armature.transform
+        
+        dying = true
+        kill_eye_gloss()
+        $AnimationPlayer.stop()
+        #animation_script.play_anim($AnimationPlayer, "Die", 1.0, 0.05, true)
+        var new = load(scene_file_path).instantiate()
+        
+        get_parent().add_child(new)
+        new.global_position = global_position + Vector3.UP*2.0
+        new.get_node("CameraHolder").transform = cam_xform
+        new.get_node("Armature").transform = body_xform
+        
+        start_simulating_bones()
         kill()
+        
         return
     
     time += delta
@@ -352,6 +411,9 @@ func _process(delta: float) -> void:
         floor_snap_length = 0.0
     elif started_process_on_floor:
         floor_snap_length = step_height + safe_margin
+        
+    floor_snap_length = 0.0
+    allow_stair_snapping = false
     
     var input_dir := Input.get_vector("left", "right", "forward", "backward") + Input.get_vector("stick_left", "stick_right", "stick_forward", "stick_backward")
     wish_dir = Vector3(input_dir.x, 0, input_dir.y).rotated(Vector3.UP, $CameraHolder.global_rotation.y)
@@ -362,7 +424,7 @@ func _process(delta: float) -> void:
     var drag = 0.98
     
     if !Input.is_action_pressed("ui_accept") and !is_on_floor() and velocity.y > 0.0:
-        grav_mod *= 2.0
+        grav_mod *= 3.0
     
     var start_pos = global_position
     var start_vel = velocity
@@ -446,7 +508,7 @@ func _unhandled_input(event: InputEvent) -> void:
 @export var third_person : bool = true
 @export var camera_smoothing_meters_per_sec : float = 3.0
 # used to smooth out the camera when climbing stairs
-var camera_offset_y = 0.0
+var camera_offset : Vector3 = Vector3()
 func handle_camera_adjustment(start_position, delta):
     #$CameraHolder/Camera3D.fov = rad_to_deg(atan(sprint_strength*0.1 + tan(deg_to_rad(original_fov/2.0))))*2.0
     
@@ -456,16 +518,22 @@ func handle_camera_adjustment(start_position, delta):
     
     if do_camera_smoothing:
         # NOT NEEDED: camera smoothing
-        var stair_climb_distance = 0.0
+        var stair_climb_distance = Vector3()
         if found_stairs:
-            stair_climb_distance = global_position.y - start_position.y
+            stair_climb_distance = global_position - start_position
         elif is_on_floor():
-            stair_climb_distance = -slide_snap_offset.y
+            stair_climb_distance = Vector3(0, -slide_snap_offset.y, 0)
         
-        camera_offset_y -= stair_climb_distance
-        camera_offset_y = clamp(camera_offset_y, -step_height, step_height)
-        camera_offset_y = move_toward(camera_offset_y, 0.0, delta * camera_smoothing_meters_per_sec)
+        camera_offset -= stair_climb_distance
+        var limit = Vector3(skipping_hack_distance, step_height, skipping_hack_distance)
+        camera_offset = camera_offset.clamp(-limit, limit)# clamp(, -step_height, step_height)
+        camera_offset = camera_offset.move_toward(Vector3(), delta * camera_smoothing_meters_per_sec)
+        
+        $Armature.position.y = 0.0
+        $Armature.position.x = 0.0
+        $Armature.position.z = 0.0
+        $Armature.global_position += camera_offset
         
         $CameraHolder/Camera3D.position.y = 0.0
         $CameraHolder/Camera3D.position.x = 0.0
-        $CameraHolder/Camera3D.global_position.y += camera_offset_y
+        $CameraHolder/Camera3D.global_position += camera_offset

@@ -96,6 +96,15 @@ func _process(delta) -> void:
 
     # If not using gravity, apply force in the direction of the bone (so it always wants to point "forward")
     var grav: Vector3 = (bone_transf_world.basis * get_bone_forward_local()).normalized() * 9.81
+    if use_gravity:
+        grav += gravity
+        
+    if bone_name == "HairFront_L":
+        #print(pos)
+        #print(grav)
+        #print(accel)
+        #print(vel.y, "\t",  accel.y)
+        pass
     
     if vel != vel:
         vel = Vector3()
@@ -122,16 +131,6 @@ func _process(delta) -> void:
     prev_pos = pos
     prev_vel = vel
     
-    if bone_name == "HairFront_L" and !Engine.is_editor_hint():
-        #print(pos)
-        #print(grav)
-        #print(accel)
-        #print(vel.y, "\t",  accel.y)
-        pass
-    
-    if use_gravity:
-        grav += gravity
-    
     #vel *= (1.0 - air_resistance)
     #vel *= 0.0
     
@@ -154,8 +153,11 @@ func _process(delta) -> void:
     
     var goal_pos : Vector3 = skeleton.to_global(skeleton.get_bone_global_pose(bone_id).origin)
     var fixed_pos = goal_pos + (global_transform.origin - goal_pos).normalized() * length
+    #if bone_name == "HairFront_L":
+    #    print(round(fixed_pos.y*100))
     #var fixed_pos = goal_pos
-    global_position = global_position.lerp(fixed_pos, pow(0.5, delta))
+    global_position = fixed_pos
+    #global_position = global_position.lerp(fixed_pos, pow(0.5, delta))
 
     if collision_sphere and is_instance_valid(collision_sphere):
         # If bone is inside the collision sphere, push it out
@@ -173,6 +175,7 @@ func _process(delta) -> void:
     ############## Rotate the bone to point to this object #############
 
     var diff_vec_local: Vector3 = (bone_transf_world.affine_inverse() * global_position).normalized()
+    var diff_vec_local_2: Vector3 = (child_bone_transf_world.affine_inverse() * global_position).normalized()
 
     # The axis+angle to rotate on, in local-to-bone space
     var bone_forward_local: Vector3 = get_bone_forward_local()

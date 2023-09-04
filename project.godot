@@ -108,6 +108,13 @@ camera_right={
 
 [physics]
 
+3d/default_gravity=20.0
+3d/sleep_threshold_linear=0.5
+3d/sleep_threshold_angular=0.5
+3d/time_before_sleep=0.2
+3d/solver/contact_recycle_radius=0.021
+3d/solver/contact_max_separation=0.065
+3d/solver/contact_max_allowed_penetration=0.028
 common/enable_pause_aware_picking=true
 
 [rendering]
