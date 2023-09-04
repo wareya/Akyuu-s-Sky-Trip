@@ -395,6 +395,7 @@ func probe_probable_step_height():
 var time = 0.0
 var want_to_jump = false
 var dying = false
+var start_vel = Vector3()
 func _process(delta: float) -> void:
     $FPS.text = str(Engine.get_frames_per_second())
     
@@ -456,8 +457,6 @@ func _process(delta: float) -> void:
     
     check_standing_on_rigidbody()
 
-var start_vel
-
 func check_standing_on_rigidbody():
     var col = floor_collision if floor_collision else get_last_slide_collision()
     if !col:
@@ -472,18 +471,19 @@ func check_standing_on_rigidbody():
         if collider.axis_lock_linear_x:
             return
             
-        var force = -1.1
+        var force = 1.1
+        force *= start_vel.y * 0.1
         if started_process_on_floor:
             force *= get_process_delta_time()
-        else:
-            force *= -start_vel.y
         
         print(force)
         
         collider.apply_impulse(Vector3(0, force, 0), col.get_position())
         #global_position.y -= get_process_delta_time()*0.1
+        platform_on_leave = CharacterBody3D.PLATFORM_ON_LEAVE_DO_NOTHING
         pass
     elif collider is StaticBody3D:
+        platform_on_leave = CharacterBody3D.PLATFORM_ON_LEAVE_ADD_VELOCITY
         #print(collider)
         pass
 
@@ -562,7 +562,11 @@ func actually_handle_movement(delta, drag, grav_mod, allow_stair_snapping):
         velocity.y *= pow(drag, delta*10.0)
     
     # CHANGE ME: replace this with your own movement-and-stair-climbing code
+    var initial_velocity = velocity
     move_and_climb_stairs(delta, allow_stair_snapping)
+    # don't get flung around by rigidbody penetration
+    if velocity.length_squared() > initial_velocity.length_squared():
+        velocity = velocity.normalized() * initial_velocity.length()
     
     #print(global_position.y)
     
@@ -578,7 +582,7 @@ func handle_stick_input(delta):
     camera_dir *= acceleration
     $CameraHolder.rotation_degrees.y -= camera_dir.x * stick_camera_speed * delta
     $CameraHolder.rotation_degrees.x -= camera_dir.y * stick_camera_speed * delta
-    $CameraHolder.rotation_degrees.x = clamp($CameraHolder.rotation_degrees.x, -90.0, 90.0)
+    $CameraHolder.rotation_degrees.x = clamp($CameraHolder.rotation_degrees.x, -90.0, 60.0)
 
 func _input(event: InputEvent) -> void:
     if event is InputEventMouseMotion:
@@ -630,3 +634,13 @@ func handle_camera_adjustment(start_position, delta):
         $CameraHolder/Camera3D.position.y = 0.0
         $CameraHolder/Camera3D.position.x = 0.0
         $CameraHolder/Camera3D.global_position += camera_offset
+    
+    $CameraHolder/RayCast3D.force_raycast_update()
+    if $CameraHolder/RayCast3D.is_colliding():
+        var pos = $CameraHolder/RayCast3D.get_collision_point()
+        var dist = pos.distance_to($CameraHolder.global_position)
+        #print(dist)
+        if dist < camera_distance:
+            $CameraHolder/Camera3D.position.z = dist
+            $CameraHolder/Camera3D.global_position += $CameraHolder/RayCast3D.get_collision_normal()*0.1
+            
