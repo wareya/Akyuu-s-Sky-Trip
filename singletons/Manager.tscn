@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://c53wubqff8rb0"]
+
+[ext_resource type="Script" path="res://singletons/Manager.gd" id="1_xhmql"]
+[ext_resource type="AudioStream" uid="uid://cy1ybvd40gbsn" path="res://music/jp saga 2.ogg" id="2_a5hci"]
+
+[node name="Manager" type="CanvasLayer"]
+script = ExtResource("1_xhmql")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_a5hci")
+autoplay = true
+bus = &"Music"

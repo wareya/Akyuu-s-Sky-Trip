@@ -4,7 +4,8 @@ class_name SimplePlayer
 const mouse_sens = 0.022 * 2.5
 
 const gravity = 25.0
-const jumpvel = 14.0
+#const jumpvel = 14.0
+const jumpvel = 11.0
 
 const max_speed = 4.0
 const max_speed_air = 4.0
@@ -33,11 +34,27 @@ func kill_eye_gloss():
 
 static func asdfawgasgd(anim_player : AnimationPlayer, skele : Skeleton3D):
     while anim_player.is_playing():
-        print("anim still playing.....", Engine.get_process_frames())
+        #print("anim still playing.....", Engine.get_process_frames())
         await Engine.get_main_loop().process_frame
-    print("animation finished!!!!!")
+    #print("animation finished!!!!!")
     anim_player.stop()
     skele.physical_bones_start_simulation()
+
+static func force_bone_position(closest_bone : PhysicalBone3D, where, what):
+    closest_bone.global_position = where
+    closest_bone.force_update_transform()
+    await Engine.get_main_loop().process_frame
+    closest_bone.global_position = where
+    closest_bone.force_update_transform()
+    if closest_bone:
+        closest_bone.axis_lock_linear_x = true
+        closest_bone.axis_lock_linear_y = true
+        closest_bone.axis_lock_linear_z = true
+        #closest_bone.axis_lock_angular_x = true
+        #closest_bone.axis_lock_angular_y = true
+        #closest_bone.axis_lock_angular_z = true
+        #print(what)
+        closest_bone.set_collision_mask_value(1, false)
 
 func kill():
     var bones = []
@@ -62,16 +79,13 @@ func kill():
         var closest_bone : PhysicalBone3D = null
         var closest_dist = 1000.0
         for bone in bones:
+            if bone.name.contains("L_") or bone.name.contains("R_"):
+                continue
             var dist = bone.global_position.distance_to(died_at)
             if dist < closest_dist:
                 closest_bone = bone
                 closest_dist = dist
-        closest_bone.global_position = died_at
-        closest_bone.force_update_transform()
-        if closest_bone:
-            closest_bone.axis_lock_linear_x = true
-            closest_bone.axis_lock_linear_y = true
-            closest_bone.axis_lock_linear_z = true
+        SimplePlayer.force_bone_position(closest_bone, died_at, died_by)
     
     skele.clear_bones_global_pose_override()
     
@@ -87,7 +101,7 @@ func kill():
     var pos = armature.global_position
     remove_child(armature)
     remove_child(anim_player)
-    var dummy = Node.new()
+    var dummy = SelfDeletesFarFromOrigin.new()
     dummy.add_child(armature)
     dummy.add_child(anim_player)
     get_parent().add_child(dummy)
@@ -97,9 +111,29 @@ func kill():
     
     queue_free()
 
+class SelfDeletesFarFromOrigin extends Node3D:
+    func _process(_delta):
+        var limit = 10000.0
+        limit *= limit
+        if global_position.length_squared() > limit:
+            queue_free()
+
 
 func get_camera():
     return $CameraHolder/Camera3D
+
+@onready var respawn_position = global_position
+
+static func make_new(path, where, cam_xform, body_xform):
+    await Engine.get_main_loop().create_timer(2.5).timeout
+    
+    var new = load(path).instantiate()
+    
+    Engine.get_main_loop().current_scene.add_child(new)
+    new.global_position = where
+    new.respawn_position = where
+    new.get_node("CameraHolder").transform = cam_xform
+    new.get_node("Armature").transform = body_xform
 
 func trigger_death():
     var cam_xform = $CameraHolder.transform
@@ -108,19 +142,17 @@ func trigger_death():
     dying = true
     kill_eye_gloss()
     $AnimationPlayer.stop()
-    #animation_script.play_anim($AnimationPlayer, "Die", 1.0, 0.05, true)
-    var new = load(scene_file_path).instantiate()
-    
-    get_parent().add_child(new)
-    new.global_position = global_position + Vector3.UP*2.0
-    new.get_node("CameraHolder").transform = cam_xform
-    new.get_node("Armature").transform = body_xform
-    
     kill()
+    #animation_script.play_anim($AnimationPlayer, "Die", 1.0, 0.05, true)
+    SimplePlayer.make_new(scene_file_path, respawn_position, cam_xform, body_xform)
+    
+    
 
 
 var animation_script = null
 func _ready():
+    SimplePlayer.emit_sfx.call_deferred("respawn", self)
+    
     $Armature/Skeleton3D.animate_physical_bones = true
     do_eye_gloss_thing()
     animation_script = preload("res://akyuu 3d 5.gd").new()
@@ -447,11 +479,11 @@ func _process(delta: float) -> void:
     
     actually_handle_movement(delta, drag, grav_mod, allow_stair_snapping)
     
-    animation_script.handle_animation(self, delta)
-    
     handle_camera_adjustment(start_pos, delta)
     
-    handle_movement_sound(is_on_floor(), start_vel, delta)
+    animation_script.handle_animation(self, delta)
+    
+    handle_movement_sound(is_on_floor(), delta)
     
     check_spikes()
     
@@ -476,7 +508,7 @@ func check_standing_on_rigidbody():
         if started_process_on_floor:
             force *= get_process_delta_time()
         
-        print(force)
+        #print(force)
         
         collider.apply_impulse(Vector3(0, force, 0), col.get_position())
         #global_position.y -= get_process_delta_time()*0.1
@@ -489,15 +521,22 @@ func check_standing_on_rigidbody():
 
 
 var died_at = null
+var died_by = null
 func check_spikes():
-    var col = floor_collision if floor_collision else get_last_slide_collision()
-    if !col:
+    #var col = floor_collision if floor_collision else get_last_slide_collision()
+    #if !col:
+    #    return
+    
+    $ShapeCast3D.force_update_transform()
+    $ShapeCast3D.force_shapecast_update()
+    if !$ShapeCast3D.is_colliding():
         return
     
-    var is_spikes = col.get_collider(0).get_collision_layer_value(5)
+    var is_spikes = $ShapeCast3D.get_collider(0).get_collision_layer_value(5)
     
     if is_spikes:
-        died_at = col.get_position(0)
+        died_at = $ShapeCast3D.get_collision_point(0)
+        died_by = $ShapeCast3D.get_collider(0)
         SimplePlayer.emit_sfx("squeak", self)
         SimplePlayer.emit_sfx("crunch_"+["a", "b", "c"].pick_random(), self)
         trigger_death()
@@ -506,12 +545,12 @@ func check_spikes():
 
 
 static var prev_which = ""
-static func generate_sound(prefix, kind, parent, where : Vector3 = Vector3(), channel = "SFX"):
+static func generate_sound(prefix, kind, parent, where : Vector3 = Vector3(), channel = "SFX", volume = 1.0):
     var which = ["_a", "_b", "_c", "_d"].pick_random()
     while which == prev_which:
         which = ["_a", "_b", "_c", "_d"].pick_random()
     prev_which = which
-    EmitterFactory.emit(prefix+kind+which, parent, where, channel, true)
+    EmitterFactory.emit(prefix+kind+which, parent, where, channel, true, volume)
 
 static func emit_sfx(sfx_name, parent, where : Vector3 = Vector3(), channel = "SFX"):
     EmitterFactory.emit(sfx_name, parent, where, channel, true)
@@ -522,7 +561,7 @@ const step_rate_modifier = 0.6
 var prev_in_water = false
 var prev_cursor = 0.0
 var suppress_first = 0.0
-func handle_movement_sound(now_on_floor : bool, start_vel : Vector3, delta : float):
+func handle_movement_sound(now_on_floor : bool, delta : float):
     #var speed = start_vel.length()
         
     if now_on_floor and !started_process_on_floor:
@@ -532,8 +571,7 @@ func handle_movement_sound(now_on_floor : bool, start_vel : Vector3, delta : flo
         pass
     else:
         if !started_process_on_floor and start_vel.y < -5.0:
-            #SimplePlayer.emit_sfx("land", self)
-            generate_step_sound()
+            generate_step_sound(start_vel.length())
             suppress_first = 0.25
         suppress_first -= delta
         if suppress_first < 0.0:
@@ -547,14 +585,16 @@ func handle_movement_sound(now_on_floor : bool, start_vel : Vector3, delta : flo
                 if suppress_first:
                     suppress_first = 0.0
                 else:
-                    generate_step_sound()
+                    generate_step_sound(start_vel.length())
             
             prev_cursor = cursor
         else:
             prev_cursor = 0.0
 
-func generate_step_sound():
-    SimplePlayer.generate_sound("rock", "step", self, Vector3(), "SFX")
+func generate_step_sound(volume : float = 5.0):
+    volume = min(volume/5.0, 1.0)
+    #print(volume)
+    SimplePlayer.generate_sound("rock", "step", self, Vector3(), "SFX", volume)
 
 func actually_handle_movement(delta, drag, grav_mod, allow_stair_snapping):
     if not is_on_floor():
@@ -575,8 +615,26 @@ func actually_handle_movement(delta, drag, grav_mod, allow_stair_snapping):
         velocity.y *= pow(drag, delta*10.0)
 
 const stick_camera_speed = 240.0
+func deadzone_crosser(axis : float, deadzone : float = 0.15):
+    var s = sign(axis)
+    axis = abs(axis)
+    axis = max(0.0, (axis-deadzone)/(1.0-deadzone))
+    return axis*s
+
+func custom_get_vector(a, b, c, d, deadzone):
+    var a_s = Input.get_action_raw_strength(a)
+    var b_s = Input.get_action_raw_strength(b)
+    var c_s = Input.get_action_raw_strength(c)
+    var d_s = Input.get_action_raw_strength(d)
+    var x = b_s - a_s
+    var y = d_s - c_s
+    x = deadzone_crosser(x, 0.15)
+    y = deadzone_crosser(y, 0.15)
+    return Vector2(x, y)
+
 func handle_stick_input(delta):
-    var camera_dir := Input.get_vector("camera_left", "camera_right", "camera_up", "camera_down", 0.15)
+    #var camera_dir = Input.get_vector("camera_left", "camera_right", "camera_up", "camera_down", 0.0)
+    var camera_dir = custom_get_vector("camera_left", "camera_right", "camera_up", "camera_down", 0.15)
     var tilt = camera_dir.length()
     var acceleration = lerp(0.25, 1.0, tilt)
     camera_dir *= acceleration
@@ -591,27 +649,39 @@ func _input(event: InputEvent) -> void:
             $CameraHolder.rotation_degrees.x -= event.relative.y * mouse_sens
             $CameraHolder.rotation_degrees.x = clamp($CameraHolder.rotation_degrees.x, -90.0, 90.0)
 
+func _toggle_mouselock():
+    if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+        Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+    else:
+        Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
 func _unhandled_input(event: InputEvent) -> void:
+    if event is InputEventMouseButton:
+        if event.pressed:
+            _toggle_mouselock()
     if event is InputEventKey:
         if event.pressed and event.keycode in [KEY_ESCAPE, KEY_Z]:
-            if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
-                Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-            else:
-                Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+            _toggle_mouselock()
 
 @export var third_person : bool = true
 @export var camera_smoothing_meters_per_sec : float = 3.0
 # used to smooth out the camera when climbing stairs
 var camera_offset : Vector3 = Vector3()
 
-const camera_distance = 6.0
+const camera_distance = 4.0
 
 func handle_camera_adjustment(start_position, delta):
     #$CameraHolder/Camera3D.fov = rad_to_deg(atan(sprint_strength*0.1 + tan(deg_to_rad(original_fov/2.0))))*2.0
     
+    var actual_camera_distance = camera_distance
+    if $CameraHolder.rotation_degrees.x < 0.0:
+        actual_camera_distance = min(7.0, lerp(camera_distance+8.0, camera_distance, $CameraHolder.rotation_degrees.x/90.0 + 1.0))
+    else:
+        actual_camera_distance = lerp(camera_distance, 1.0, $CameraHolder.rotation_degrees.x/90.0)
+    
     # first/third-person adjustment
     $CameraHolder.position.y = 1.2 if third_person else 1.625
-    $CameraHolder/Camera3D.position.z = camera_distance if third_person else 0.0
+    $CameraHolder/Camera3D.position.z = actual_camera_distance if third_person else 0.0
     
     if do_camera_smoothing:
         # NOT NEEDED: camera smoothing
@@ -640,7 +710,10 @@ func handle_camera_adjustment(start_position, delta):
         var pos = $CameraHolder/RayCast3D.get_collision_point()
         var dist = pos.distance_to($CameraHolder.global_position)
         #print(dist)
-        if dist < camera_distance:
+        if dist < 1.0:
+            var new = min($CameraHolder.rotation_degrees.x, -70.0)
+            $CameraHolder.rotation_degrees.x = lerp($CameraHolder.rotation_degrees.x, new, 1.0 - pow(0.5, delta*5.0))
+        if dist < actual_camera_distance:
             $CameraHolder/Camera3D.position.z = dist
             $CameraHolder/Camera3D.global_position += $CameraHolder/RayCast3D.get_collision_normal()*0.1
             

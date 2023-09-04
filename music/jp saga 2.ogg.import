@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://cy1ybvd40gbsn"
+path="res://.godot/imported/jp saga 2.ogg-0a8ef03747e2223095a1be88e879f264.oggvorbisstr"
+
+[deps]
+
+source_file="res://music/jp saga 2.ogg"
+dest_files=["res://.godot/imported/jp saga 2.ogg-0a8ef03747e2223095a1be88e879f264.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=15.36
+bpm=0.0
+beat_count=0
+bar_beats=4
