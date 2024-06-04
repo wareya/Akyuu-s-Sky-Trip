@@ -6,8 +6,6 @@ func move_toward_angle(from : float, to: float, delta : float):
         ans -= TAU
     if delta > abs(ans):
         return to
-    #if abs(ans) < delta/get_process_delta_time()*0.05:
-    #    delta *= 0.25
     return from + sign(ans) * min(1.0, abs(ans)) * delta
 
 var prev_velocity = Vector3()
@@ -30,6 +28,7 @@ func handle_animation(parent : CharacterBody3D, delta : float):
     var tilt_speed = speed
     if !parent.is_on_floor():
         tilt_speed *= 0.5
+        
     forwards_tilt = clamp(lerp(forwards_tilt, tilt_speed*0.2, 1.0 - pow(0.5, delta * 40.0)), -1.0, 1.0)
     
     var next_prev_velocity = prev_velocity.lerp(floor_velocity, 1.0 - pow(0.5, delta*8.0))
@@ -44,23 +43,21 @@ func handle_animation(parent : CharacterBody3D, delta : float):
     
     prev_velocity = next_prev_velocity
     
-    holder.rotation.x = -forwards_tilt*0.1
+    holder.rotation.x = -forwards_tilt*0.2
     sideways_tilt = clamp(lerp(sideways_tilt, sideways_accel*0.015, 1.0 - pow(0.5, delta * 40.0)), -0.4, 0.4)
     #print(sideways_tilt)
-    holder.rotation.z = -sideways_tilt*0.2
+    holder.rotation.z = -sideways_tilt*0.4
     
     if speed_intent > 0.0:
         var new_basis : Basis = holder.global_transform.basis.looking_at(parent.wish_dir)
         var new_y = new_basis.get_euler().y
-        #print(new_y)
         holder.global_rotation.y = move_toward_angle(holder.global_rotation.y, new_y, delta * PI * 6.0)
-        #holder.global_transform.basis = holder.global_transform.basis.slerp(new_basis, 1.0 - pow(0.5, delta*20.0))
     
-    var f = Vector3.FORWARD.rotated(Vector3.UP, holder.global_rotation.y) * -forwards_tilt*0.3
+    var f = Vector3.FORWARD.rotated(Vector3.UP, holder.global_rotation.y) * holder.rotation.x*2.0
     holder.global_position.z += f.z
     holder.global_position.x += f.x
     
-    var f2 = Vector3.FORWARD.rotated(Vector3.UP, holder.global_rotation.y + PI/2) * sideways_tilt*0.6
+    var f2 = Vector3.FORWARD.rotated(Vector3.UP, holder.global_rotation.y + PI/2) * -holder.rotation.z*2.0
     holder.global_position.z += f2.z
     holder.global_position.x += f2.x
     #print(holder.position.z)

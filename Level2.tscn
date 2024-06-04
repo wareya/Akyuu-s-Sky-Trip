@@ -1,7 +1,7 @@
 [gd_scene load_steps=22 format=3 uid="uid://cs3j3berjqun2"]
 
 [ext_resource type="Script" path="res://Level2.gd" id="1_gaxg4"]
-[ext_resource type="PackedScene" uid="uid://hghnpfcom623" path="res://akyuu_3d_7.tscn" id="2_5oxsn"]
+[ext_resource type="PackedScene" uid="uid://hghnpfcom623" path="res://scenes etc/akyuu_3d_7.tscn" id="2_5oxsn"]
 [ext_resource type="PackedScene" uid="uid://bhoqc6v5tydy4" path="res://spikes.tscn" id="3_k6jw6"]
 [ext_resource type="PackedScene" uid="uid://dh6ydaalh60lb" path="res://portal.tscn" id="4_01ec5"]
 [ext_resource type="Script" path="res://OmniCamera.gd" id="4_un6tq"]

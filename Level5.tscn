@@ -1,10 +1,10 @@
 [gd_scene load_steps=23 format=3 uid="uid://rbkpvs3m10vt"]
 
 [ext_resource type="Script" path="res://Level5.gd" id="1_kbw2t"]
-[ext_resource type="PackedScene" uid="uid://hghnpfcom623" path="res://akyuu_3d_7.tscn" id="1_liy23"]
+[ext_resource type="PackedScene" uid="uid://hghnpfcom623" path="res://scenes etc/akyuu_3d_7.tscn" id="1_liy23"]
 [ext_resource type="PackedScene" uid="uid://bhoqc6v5tydy4" path="res://spikes.tscn" id="2_bg7sq"]
 [ext_resource type="Script" path="res://OmniCamera.gd" id="3_314re"]
-[ext_resource type="PackedScene" uid="uid://mg5xs2vvl0uo" path="res://kill_field.tscn" id="4_v1ept"]
+[ext_resource type="PackedScene" uid="uid://mg5xs2vvl0uo" path="res://scenes etc/kill_field.tscn" id="4_v1ept"]
 [ext_resource type="PackedScene" uid="uid://dh6ydaalh60lb" path="res://portal.tscn" id="6_wcl3b"]
 [ext_resource type="PackedScene" uid="uid://cmmppn6mojle3" path="res://pressure_switch.tscn" id="7_wdsxp"]
 

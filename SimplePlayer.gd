@@ -185,7 +185,7 @@ func _ready():
     
     $Armature/Skeleton3D.animate_physical_bones = true
     do_eye_gloss_thing()
-    animation_script = preload("res://akyuu 3d 5.gd").new()
+    animation_script = preload("res://scenes etc/akyuu 3d 5.gd").new()
     animation_script.fix_animations($AnimationPlayer)
     add_child(animation_script)
     original_fov = $CameraHolder/Camera3D.fov
@@ -230,7 +230,7 @@ func handle_accel(delta):
         sprint_strength = move_toward(sprint_strength, 1.0, delta*16.0)
     else:
         sprint_strength = move_toward(sprint_strength, 0.0, delta*16.0)
-        
+    
     if wish_dir != Vector3():
         var floor_velocity = Vector3(velocity.x, 0, velocity.z)
         var speed_in_wish_dir = floor_velocity.dot(wish_dir.normalized())

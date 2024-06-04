@@ -27,6 +27,10 @@ Manager="*res://singletons/Manager.tscn"
 
 window/stretch/mode="canvas_items"
 
+[dotnet]
+
+project/assembly_name="Akyuu-s Sky Trip"
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/jigglebones/plugin.cfg")

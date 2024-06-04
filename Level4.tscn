@@ -1,11 +1,11 @@
 [gd_scene load_steps=20 format=3 uid="uid://batp2ock308xo"]
 
-[ext_resource type="PackedScene" uid="uid://hghnpfcom623" path="res://akyuu_3d_7.tscn" id="1_vxuif"]
+[ext_resource type="PackedScene" uid="uid://hghnpfcom623" path="res://scenes etc/akyuu_3d_7.tscn" id="1_vxuif"]
 [ext_resource type="PackedScene" uid="uid://bhoqc6v5tydy4" path="res://spikes.tscn" id="2_r7fi6"]
 [ext_resource type="Script" path="res://OmniCamera.gd" id="3_28ea3"]
 [ext_resource type="PackedScene" uid="uid://dh6ydaalh60lb" path="res://portal.tscn" id="4_5i0q3"]
 [ext_resource type="PackedScene" uid="uid://cl4o8rk8l4mo7" path="res://sliding_door.tscn" id="5_8owju"]
-[ext_resource type="PackedScene" uid="uid://mg5xs2vvl0uo" path="res://kill_field.tscn" id="5_wotip"]
+[ext_resource type="PackedScene" uid="uid://mg5xs2vvl0uo" path="res://scenes etc/kill_field.tscn" id="5_wotip"]
 [ext_resource type="PackedScene" uid="uid://cmmppn6mojle3" path="res://pressure_switch.tscn" id="7_ia7ko"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hdj71"]

@@ -1,9 +1,9 @@
 [gd_scene load_steps=24 format=3 uid="uid://w7tfvj72lvwm"]
 
-[ext_resource type="PackedScene" uid="uid://hghnpfcom623" path="res://akyuu_3d_7.tscn" id="2_6ur64"]
+[ext_resource type="PackedScene" uid="uid://hghnpfcom623" path="res://scenes etc/akyuu_3d_7.tscn" id="2_6ur64"]
 [ext_resource type="PackedScene" uid="uid://cl4o8rk8l4mo7" path="res://sliding_door.tscn" id="2_r87ty"]
 [ext_resource type="PackedScene" uid="uid://bhoqc6v5tydy4" path="res://spikes.tscn" id="3_fc1lp"]
-[ext_resource type="PackedScene" uid="uid://mg5xs2vvl0uo" path="res://kill_field.tscn" id="3_hj6ds"]
+[ext_resource type="PackedScene" uid="uid://mg5xs2vvl0uo" path="res://scenes etc/kill_field.tscn" id="3_hj6ds"]
 [ext_resource type="Script" path="res://OmniCamera.gd" id="4_6ss1m"]
 [ext_resource type="PackedScene" uid="uid://cmmppn6mojle3" path="res://pressure_switch.tscn" id="4_cirxm"]
 [ext_resource type="PackedScene" uid="uid://dh6ydaalh60lb" path="res://portal.tscn" id="5_hue5j"]
@@ -24,8 +24,9 @@ sky = SubResource("Sky_fc6i1")
 tonemap_mode = 3
 tonemap_exposure = 0.8
 ssr_enabled = true
-sdfgi_enabled = true
 sdfgi_min_cell_size = 0.1
+sdfgi_cascade0_distance = 6.4
+sdfgi_max_distance = 102.4
 glow_enabled = true
 glow_intensity = 0.6
 glow_blend_mode = 1
@@ -37,6 +38,7 @@ offsets = PackedFloat32Array(0, 0.237069, 0.75)
 colors = PackedColorArray(0.164063, 0.164063, 0.164063, 1, 0.567559, 0.697864, 0.927686, 1, 1, 1, 1, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_yhn8r"]
+resource_name = "_albedo"
 gradient = SubResource("Gradient_6xr2g")
 fill = 2
 fill_from = Vector2(0.5, 0.5)
@@ -55,6 +57,7 @@ offsets = PackedFloat32Array(0.168103, 0.25, 0.905172)
 colors = PackedColorArray(1, 1, 1, 1, 0.520366, 0.267027, 0.267027, 1, 0.303129, 0.0957455, 0.0957455, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_mdige"]
+resource_name = "_albedo"
 gradient = SubResource("Gradient_maubq")
 fill = 2
 fill_from = Vector2(0.5, 0.5)
@@ -73,6 +76,7 @@ offsets = PackedFloat32Array(0.181034, 0.349138, 0.672414)
 colors = PackedColorArray(0.846222, 0.38972, 0.38972, 1, 1, 1, 1, 1, 0.195799, 0.371015, 0.136708, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_8p8tg"]
+resource_name = "_albedo"
 gradient = SubResource("Gradient_08tj7")
 fill = 2
 fill_from = Vector2(0.5, 0.5)
@@ -91,6 +95,7 @@ offsets = PackedFloat32Array(0.694444, 0.788889, 0.916667)
 colors = PackedColorArray(0, 0.0593563, 0.275974, 0, 0.0737511, 0.229567, 0.644569, 0.509091, 0.145098, 0.392157, 1, 0.784314)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_ulo1s"]
+resource_name = "_albedo"
 gradient = SubResource("Gradient_wwo25")
 fill = 2
 fill_from = Vector2(0.5, 0.5)
