@@ -31,3 +31,11 @@ The project contains the font "Oxanium", licensed under the OFL. Its license is 
 Made in Godot 4: https://github.com/godotengine/godot/blob/4.2/COPYRIGHT.txt
 
 uses the godot jigglebones addon under the MIT license: https://github.com/yaelatletl/godot-jigglebones/blob/4.X/LICENSE
+
+# Screenshots
+
+![image](https://github.com/wareya/Akyuu-s-Sky-Trip/assets/585488/0d729418-fd7b-429e-858a-8a8eaf1578ef)
+
+![image](https://github.com/wareya/Akyuu-s-Sky-Trip/assets/585488/a5b241a7-7618-43c1-940f-03b94e8107f2)
+
+![image](https://github.com/wareya/Akyuu-s-Sky-Trip/assets/585488/7cf2f6c3-1827-4e2e-a79b-cb3c6ddc5306)
